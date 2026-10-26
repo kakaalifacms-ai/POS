@@ -1,6 +1,7 @@
-// ==========================================
-// 1. IMPORT FIREBASE
-// ==========================================
+
+ // ==========================================
+ // 1. IMPORT FIREBASE
+ // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"
 
 import {
@@ -10,11 +11,13 @@ import {
   query,
   orderBy,
   onSnapshot,
-  serverTimestamp, 
-  setDOC
+  serverTimestamp,
+  doc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
 
 import QRCode from "https://esm.sh/qrcode@1.5.3"
+
 // ==========================================
 // 2. CONFIG FIREBASE
 // ==========================================
@@ -42,62 +45,86 @@ window.tambahkeKeranjang = function (nama, harga) {
   totalHarga += harga
   document.getElementById('total-harga').innerText = `Rp. ${totalHarga}`
 
- 
- //mengaktifkan
- document.getElementById('btn-bayar').disabled = false
- }
- 
- //funsi reset keranjang
- window.resetKeranjang = function (){
-   totalHarga = 0
-   document.getElementById('total-harga').innerText = 'Rp. 0'
-   document.getElementById('btn-bayar').disabled = true 
-   document.getElementById('qr-section').classList.add('hidden')
- }
- 
- //funsi membuat id transki dan qr code
- window.buatTransaksiQR = async function () {
-   //megecah trasksiki 0 rupiah
-   if (totalHarga ===0 ) return
-   
-   //buat identitsas transaksi unik
-   trxIdSekarang = "TRX-" + Math.floor(1000 + Math.random() * 9000)
-   
-   //tampilanidetitas
-   document.getElementById('tx-id-display').innerText = trxIdSekarang
-   //tampilanqr
-   document.getElementById('qr-section').classList.remove ('hidden')
-   
-   //reset tampilan status qr
-   const statusbox = document.getElementById('status-box')
-   statusbox.getElementById('status-teks').innerText = "Menunggu scan...."
-   
-   //membuatqrcode jelas terlihat
-   document.getElementById('qr-canvas').style.opacity = 1
-   
-   //render qr code ke canvas
-   const elemencanvas = document. getElementById('qr-canvas')
-   try{
-     await QRcode.toCanvas(elemencanvas, trxIdSekarang, {
-       width: 140,
-       margin: 1
-       
-    } )
-    
-   } catch (error){
-     console.log("Gagal membuat QR")
-   }
-   
-   //simpan dokumen transkaki ke firebase
-   const refTrx = doc(db, "transaksi", trxIdSekarang)
-   try{
-     await setDOC(refTrx, {
-       total: totalHarga, 
-       status: 'takterbayar', 
-       waktuBuat: Date.now()
-     }) 
-     
-   } catch (error){
-     console.log("gagal menyimpan transaksi ke firestore")
-   }
- }
+  //mengaktifkan
+  document.getElementById('btn-bayar').disabled = false
+}
+
+//funsi reset keranjang
+window.resetKeranjang = function () {
+  totalHarga = 0
+  trxIdSekarang = ""
+
+  document.getElementById('total-harga').innerText = 'Rp. 0'
+  document.getElementById('btn-bayar').disabled = true
+  document.getElementById('qr-section').classList.add('hidden')
+}
+
+//funsi membuat id transki dan qr code
+window.buatTransaksiQR = async function () {
+  //mencegah transaksi 0 rupiah
+  if (totalHarga === 0) return
+
+  //buat identitsas transaksi unik
+  trxIdSekarang = "TRX-" + Math.floor(1000 + Math.random() * 9000)
+
+  //tampilan identitas
+  document.getElementById('tx-id-display').innerText = trxIdSekarang
+
+  //tampilan qr
+  document.getElementById('qr-section').classList.remove('hidden')
+
+  //reset tampilan status qr
+  const statusbox = document.getElementById('status-box')
+  document.getElementById('status-teks').innerText = "Menunggu scan...."
+
+  //membuat qr code jelas terlihat
+  document.getElementById('qr-canvas').style.opacity = 1
+
+  //render qr code ke canvas
+  const elemencanvas = document.getElementById('qr-canvas')
+
+  try {
+    await QRCode.toCanvas(elemencanvas, trxIdSekarang, {
+      width: 140,
+      margin: 1
+    })
+
+  } catch (error) {
+    console.log("Gagal membuat QR", error)
+    return
+  }
+
+  //simpan dokumen transaksi ke firebase
+  const refTrx = doc(db, "transaksi", trxIdSekarang)
+
+  try {
+    await setDoc(refTrx, {
+      total: totalHarga,
+      status: 'takterbayar',
+      waktuBuat: Date.now()
+    })
+
+  } catch (error) {
+    console.log("Gagal menyimpan transaksi ke Firestore", error)
+  }
+}
+// fungsi listener status pembayaran di firebase
+function listenStatusPembayaran(trxId) {
+  const refTrx = doc(db, "transaksi", trxId)
+  
+  const unsubscribeListener = onSnapshot(
+    refTrx, 
+    (docSnapshot)=>{
+      if (docSnapshot.exists()&& docSnapshot.data().status == 'terbayar') {
+        //tampilan efek lunas
+        document.getElementById('status-box').className= "status-box status-success"
+        document.getElementById('status-teks').innerText = "🎉lunass"
+        document.getElementById('qr-canvas').style.opacity = "0.2"
+        
+        unsubscribeListener()
+      }
+    }
+  )
+}
+//hubungkan tombol buat QR
+document.getElementById('btn-bayar').addEventListener('click', window.buatTransaksiQR)
