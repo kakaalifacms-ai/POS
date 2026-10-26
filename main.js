@@ -107,6 +107,7 @@ window.buatTransaksiQR = async function () {
   } catch (error) {
     console.log("Gagal menyimpan transaksi ke Firestore", error)
   }
+   listenStatusPembayaran(trxIdSekarang)
 }
 // fungsi listener status pembayaran di firebase
 function listenStatusPembayaran(trxId) {
