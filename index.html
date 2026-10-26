@@ -17,8 +17,8 @@
     
     <!-- menu grid 2 kolom -->
     <div class="menu-grid">
-      <button class="menu-btn">mie ayam🍜 15k</button>
-      <button class="menu-btn">ayam geprek jago 🍗 13k</button>
+      <button class="menu-btn" onclick="tambahkeKeranjang('mie ayam', 15000)">mie ayam🍜 15k</button>
+      <button class="menu-btn" onclick="tambahkeKeranjang('ayam', 13000)">ayam geprek jago 🍗 13k</button>
       <button class="menu-btn">nasi goreng pedas 🍛 15k</button>
       <button class="menu-btn">es teh manis🍹 5k</button>
       <button class="menu-btn">donat 🍩 5k</button>
@@ -31,7 +31,7 @@
       <div id="total-harga" class="total-teks">Rp. 0</div>
       <div class="action-btns">
         <button id="btn-bayar" class="btn-main" disabled>buat QR</button>
-        <button id="btn-reset" class="btn-reset">reset</button>
+        <button id="btn-reset" class="btn-reset" onclick="resetKeranjang()">reset</button>
       </div>
     </div>
     
@@ -44,6 +44,6 @@
       </div>
     </div>
   </div>
-  <script src="main.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>
