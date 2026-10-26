@@ -10,7 +10,8 @@ import {
   query,
   orderBy,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp, 
+  setDOC
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
 
 import QRCode from "https://esm.sh/qrcode@1.5.3"
@@ -85,5 +86,18 @@ window.tambahkeKeranjang = function (nama, harga) {
     
    } catch (error){
      console.log("Gagal membuat QR")
+   }
+   
+   //simpan dokumen transkaki ke firebase
+   const refTrx = doc(db, "transaksi", trxIdSekarang)
+   try{
+     await setDOC(refTrx, {
+       total: totalHarga, 
+       status: 'takterbayar', 
+       waktuBuat: Date.now()
+     }) 
+     
+   } catch (error){
+     console.log("gagal menyimpan transaksi ke firestore")
    }
  }
