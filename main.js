@@ -54,3 +54,36 @@ window.tambahkeKeranjang = function (nama, harga) {
    document.getElementById('qr-section').classList.add('hidden')
  }
  
+ //funsi membuat id transki dan qr code
+ window.buatTransaksiQR = async function () {
+   //megecah trasksiki 0 rupiah
+   if (totalHarga ===0 ) return
+   
+   //buat identitsas transaksi unik
+   trxIdSekarang = "TRX-" + Math.floor(1000 + Math.random() * 9000)
+   
+   //tampilanidetitas
+   document.getElementById('tx-id-display').innerText = trxIdSekarang
+   //tampilanqr
+   document.getElementById('qr-section').classList.remove ('hidden')
+   
+   //reset tampilan status qr
+   const statusbox = document.getElementById('status-box')
+   statusbox.getElementById('status-teks').innerText = "Menunggu scan...."
+   
+   //membuatqrcode jelas terlihat
+   document.getElementById('qr-canvas').style.opacity = 1
+   
+   //render qr code ke canvas
+   const elemencanvas = document. getElementById('qr-canvas')
+   try{
+     await QRcode.toCanvas(elemencanvas, trxIdSekarang, {
+       width: 140,
+       margin: 1
+       
+    } )
+    
+   } catch (error){
+     console.log("Gagal membuat QR")
+   }
+ }
