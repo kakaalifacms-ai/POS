@@ -1,3 +1,7 @@
+/* =================================
+   KASIR CEMERLANG - MODERN POS
+================================= */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,94 +9,115 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: #f0f2f5;
-  height: 100dvh; /* Menggunakan Dynamic Viewport Height */
+  font-family: -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #fff1e5, #ffe0c2);
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
 }
+
+/* CARD UTAMA */
 
 .container {
   width: 100%;
   max-width: 380px;
-  max-height: 100dvh;
-  background: #ffffff;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(120, 65, 20, 0.15);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
+/* JUDUL */
+
 h1 {
-  font-size: 18px;
+  font-size: 21px;
   text-align: center;
-  margin-bottom: 8px;
-  color: #1a1a1a;
+  margin-bottom: 14px;
+  color: #c64d14;
+  font-weight: 800;
 }
 
 h3 {
   font-size: 13px;
-  color: #555;
-  margin-bottom: 6px;
+  color: #777;
+  margin-bottom: 7px;
 }
 
-/* Grid Tombol Menu Ringkas */
+/* MENU */
+
 .menu-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 9px;
+  margin-bottom: 12px;
 }
 
 .menu-btn {
-  padding: 10px 6px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #f8f9fa;
+  padding: 9px 6px;
+  border: 1px solid #f1dfd2;
+  border-radius: 13px;
+  background: #fffaf6;
   font-size: 12px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #493326;
   cursor: pointer;
   text-align: center;
+  transition: 0.2s;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+.menu-btn img {
+  width: 100%;
+  height: 85px;
+  object-fit: cover;
+  border-radius: 9px;
+  display: block;
+  margin-bottom: 7px;
 }
 
 .menu-btn:active {
-  background: #e2e6ea;
+  transform: scale(0.97);
+  background: #ffeadb;
 }
 
-/* Ringkasan Belanja Compact */
+/* TOTAL TAGIHAN */
+
 .summary-box {
-  background: #f8f9fa;
-  padding: 8px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #fff5ec, #ffe8d7);
+  padding: 12px;
+  border-radius: 14px;
   text-align: center;
-  margin-bottom: 8px;
-  border: 1px solid #eee;
+  margin-bottom: 10px;
+  border: 1px solid #ffddc3;
 }
 
 .total-teks {
-  font-size: 20px;
-  color: #007bff;
-  font-weight: bold;
-  margin: 2px 0 6px 0;
+  font-size: 25px;
+  color: #e65b18;
+  font-weight: 800;
+  margin: 5px 0 10px;
 }
 
 .action-btns {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .btn-main {
   flex: 2;
-  padding: 10px;
-  background: #28a745;
+  padding: 12px;
+  background: linear-gradient(135deg, #27ae60, #168b48);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: bold;
 }
@@ -103,19 +128,33 @@ h3 {
 
 .btn-reset {
   flex: 1;
-  padding: 10px;
-  background: #dc3545;
+  padding: 12px;
+  background: linear-gradient(135deg, #f04b4b, #ce2929);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 13px;
+  font-weight: bold;
 }
 
-/* Area QR Code Pas Layar */
+/* QR CODE - TETAP DI DALAM CARD */
+
 #qr-section {
-  border-top: 1px dashed #ccc;
-  padding-top: 8px;
+  width: 100%;
+  flex-shrink: 0;
+  border: 1px dashed #efc5a8;
+  background: #fffaf6;
+  border-radius: 13px;
+  padding: 12px 8px;
+  margin-top: 2px;
   text-align: center;
+  overflow: hidden;
+}
+
+#qr-section h3 {
+  color: #bd4b17;
+  font-size: 13px;
+  margin-bottom: 8px;
 }
 
 .hidden {
@@ -123,18 +162,22 @@ h3 {
 }
 
 #qr-canvas {
-  width: 140px !important;  /* Ukuran pas untuk HP agar tidak makan tempat */
+  width: 140px !important;
   height: 140px !important;
-  margin: 4px auto;
+  max-width: 100%;
+  margin: 5px auto;
   display: block;
+  border-radius: 8px;
 }
 
-/* Box Status Ringkas */
+/* STATUS PEMBAYARAN */
+
 .status-box {
-  padding: 6px;
+  padding: 9px;
   font-size: 12px;
-  border-radius: 6px;
-  margin-top: 4px;
+  border-radius: 9px;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
 }
 
 .status-pending {
@@ -147,11 +190,14 @@ h3 {
   color: #155724;
   font-weight: bold;
 }
- .menu-btn img {
-  width: 65px;
-  height: 55px;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-  margin: 0 auto 5px;
+
+/* SCROLL CARD JIKA LAYAR PENDEK */
+
+.container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: #e8b18c;
+  border-radius: 10px;
 }
