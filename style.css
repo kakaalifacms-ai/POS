@@ -201,3 +201,14 @@ h3 {
   background: #e8b18c;
   border-radius: 10px;
 }
+ .harga-menu {
+  display: block;
+  margin-top: 7px;
+  padding: 6px;
+  background: #fff0e5;
+  color: #df5719;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
