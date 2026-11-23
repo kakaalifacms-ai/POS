@@ -1,214 +1,384 @@
-/* =================================
-   KASIR CEMERLANG - MODERN POS
-================================= */
-
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #fff1e5, #ffe0c2);
-  min-height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
+  font-family: Arial, sans-serif;
+  background: #f3f5f9;
+  color: #252b36;
+  padding: 18px;
 }
-
-/* CARD UTAMA */
 
 .container {
-  width: 100%;
-  max-width: 380px;
-  max-height: calc(100dvh - 24px);
-  overflow-y: auto;
-  background: #fff;
-  padding: 15px;
-  border-radius: 20px;
-  box-shadow: 0 10px 35px rgba(120, 65, 20, 0.15);
+  max-width: 850px;
+  margin: auto;
+}
+
+/* HEADER */
+
+.header {
+  background: linear-gradient(135deg, #ff6b00, #ed3e00);
+  color: white;
+  padding: 25px;
+  border-radius: 18px;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 5px 15px #00000015;
 }
 
-/* JUDUL */
-
-h1 {
-  font-size: 21px;
-  text-align: center;
-  margin-bottom: 14px;
-  color: #c64d14;
-  font-weight: 800;
+.header h1 {
+  font-size: 25px;
+  margin-bottom: 7px;
 }
 
-h3 {
+.header p {
+  font-size: 13px;
+  opacity: .9;
+}
+
+.status-online {
+  background: #ffffff25;
+  padding: 9px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* SALDO */
+
+.saldo-box {
+  background: white;
+  padding: 22px;
+  margin-top: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px #00000008;
+}
+
+.saldo-header,
+.saldo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.saldo-header {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.saldo-status {
+  color: #16a34a;
+  font-size: 12px;
+}
+
+#saldo-kasir {
+  font-size: 32px;
+  color: #ed5500;
+  margin: 18px 0;
+}
+
+.saldo-footer {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
   font-size: 13px;
   color: #777;
-  margin-bottom: 7px;
+}
+
+.saldo-footer strong {
+  color: #16a34a;
+  font-size: 15px;
 }
 
 /* MENU */
 
+.judul-menu {
+  margin: 27px 0 15px;
+  font-size: 19px;
+}
+
 .menu-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.menu-card {
+  background: white;
+  border-radius: 15px;
+  padding: 11px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px #00000008;
+}
+
+.menu-card img {
+  width: 100%;
+  height: 135px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #eee;
+}
+
+.menu-card h3 {
+  font-size: 14px;
+  margin: 12px 0 7px;
+}
+
+.menu-card p {
+  color: #ed5500;
+  font-weight: bold;
   margin-bottom: 12px;
 }
 
-.menu-btn {
-  padding: 9px 6px;
-  border: 1px solid #f1dfd2;
-  border-radius: 13px;
-  background: #fffaf6;
-  font-size: 12px;
-  font-weight: 700;
-  color: #493326;
-  cursor: pointer;
-  text-align: center;
-  transition: 0.2s;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
-}
-
-.menu-btn img {
+.menu-card button {
   width: 100%;
-  height: 85px;
-  object-fit: cover;
+  background: #ff6200;
+  color: white;
+  border: none;
   border-radius: 9px;
+  padding: 11px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.menu-card button:active {
+  transform: scale(.97);
+}
+
+.menu-card button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+/* KERANJANG */
+
+.keranjang-box,
+.summary-box {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 3px 12px #00000008;
+}
+
+.keranjang-box h3,
+.summary-box h3 {
+  margin-bottom: 15px;
+}
+
+.keranjang-kosong {
+  color: #999;
+  font-size: 14px;
+}
+
+.item-keranjang {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  font-size: 14px;
+}
+
+.item-keranjang:last-child {
+  border-bottom: none;
+}
+
+.item-kanan {
+  text-align: right;
+}
+
+.item-kanan strong {
   display: block;
-  margin-bottom: 7px;
+  color: #ed5500;
 }
 
-.menu-btn:active {
-  transform: scale(0.97);
-  background: #ffeadb;
+.item-kanan small {
+  color: #888;
 }
 
-/* TOTAL TAGIHAN */
+/* TOTAL */
 
 .summary-box {
-  background: linear-gradient(135deg, #fff5ec, #ffe8d7);
-  padding: 12px;
-  border-radius: 14px;
   text-align: center;
-  margin-bottom: 10px;
-  border: 1px solid #ffddc3;
 }
 
 .total-teks {
-  font-size: 25px;
-  color: #e65b18;
-  font-weight: 800;
-  margin: 5px 0 10px;
+  font-size: 29px;
+  color: #ed5500;
+  font-weight: bold;
+  margin: 15px 0 20px;
 }
 
 .action-btns {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+}
+
+.action-btns button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .btn-main {
-  flex: 2;
-  padding: 12px;
-  background: linear-gradient(135deg, #27ae60, #168b48);
+  background: #ff6200;
   color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.btn-main:disabled {
-  background: #ccc;
 }
 
 .btn-reset {
-  flex: 1;
-  padding: 12px;
-  background: linear-gradient(135deg, #f04b4b, #ce2929);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: bold;
+  background: #eeeeee;
+  color: #333;
 }
 
-/* QR CODE - TETAP DI DALAM CARD */
+.btn-main:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
 
-#qr-section {
-  width: 100%;
-  flex-shrink: 0;
-  border: 1px dashed #efc5a8;
-  background: #fffaf6;
-  border-radius: 13px;
-  padding: 12px 8px;
-  margin-top: 2px;
+/* QR */
+
+.qr-section {
+  background: white;
+  border-radius: 16px;
+  padding: 23px;
   text-align: center;
-  overflow: hidden;
+  margin-top: 20px;
+  box-shadow: 0 3px 12px #00000008;
 }
 
-#qr-section h3 {
-  color: #bd4b17;
+.qr-section h3 {
+  margin-bottom: 12px;
+}
+
+.id-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.qr-wrapper {
+  margin: 20px auto;
+  display: inline-block;
+  padding: 12px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+#qr-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.status-box {
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.status-pending {
+  background: #fff4d6;
+  color: #946200;
+}
+
+.status-success {
+  background: #d9fbe5;
+  color: #16783a;
+}
+
+.qr-info {
+  font-size: 12px;
+  color: #888;
+  margin-top: 15px;
+}
+
+/* NOTIFIKASI */
+
+.notifikasi {
+  position: fixed;
+  top: 20px;
+  left: 5%;
+  width: 90%;
+  max-width: 420px;
+  margin: auto;
+  padding: 22px;
+  background: #d9fbe5;
+  color: #16783a;
+  border-radius: 16px;
+  text-align: center;
+  z-index: 9999;
+  box-shadow: 0 5px 25px #00000025;
+  animation: muncul .3s ease;
+}
+
+.notifikasi h3 {
+  margin: 10px 0;
+}
+
+.notifikasi h2 {
+  margin: 12px 0;
+  font-size: 27px;
+}
+
+.notifikasi p {
   font-size: 13px;
-  margin-bottom: 8px;
+  margin: 5px;
 }
 
 .hidden {
   display: none !important;
 }
 
-#qr-canvas {
-  width: 140px !important;
-  height: 140px !important;
-  max-width: 100%;
-  margin: 5px auto;
-  display: block;
-  border-radius: 8px;
+@keyframes muncul {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* STATUS PEMBAYARAN */
+/* RESPONSIVE */
 
-.status-box {
-  padding: 9px;
-  font-size: 12px;
-  border-radius: 9px;
-  margin-top: 8px;
-  overflow-wrap: anywhere;
+@media (min-width: 650px) {
+  .menu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.status-pending {
-  background: #fff3cd;
-  color: #856404;
-}
+@media (max-width: 380px) {
+  body {
+    padding: 10px;
+  }
 
-.status-success {
-  background: #d4edda;
-  color: #155724;
-  font-weight: bold;
-}
+  .header h1 {
+    font-size: 20px;
+  }
 
-/* SCROLL CARD JIKA LAYAR PENDEK */
+  .menu-card img {
+    height: 110px;
+  }
 
-.container::-webkit-scrollbar {
-  width: 4px;
-}
+  .menu-card h3 {
+    font-size: 12px;
+  }
 
-.container::-webkit-scrollbar-thumb {
-  background: #e8b18c;
-  border-radius: 10px;
-}
- .harga-menu {
-  display: block;
-  margin-top: 7px;
-  padding: 6px;
-  background: #fff0e5;
-  color: #df5719;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.3px;
+  .total-teks {
+    font-size: 25px;
+  }
 }

@@ -1,80 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Kasir cemerlang</title>
-  
- 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasir Cemerlang</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <div class="container">
-    <h1>🛒kasir cemerlang</h1>
-    
-    <!-- menu grid 2 kolom -->
- <div class="menu-grid">
 
-  <button class="menu-btn" onclick="tambahkeKeranjang('mie ayam', 15000)">
-    <img src="gambar/mieayam2.jpg" alt="Mie Ayam">
-    Mie Ayam 🍜
-    <span class="harga-menu">Rp15.000</span>
-  </button>
+<div class="container">
 
-  <button class="menu-btn" onclick="tambahkeKeranjang('ayam', 30000)">
-    <img src="gambar/ayam-geprek.jpg" alt="Ayam Geprek">
-    Ayam Geprek Jago 🍗
-    <span class="harga-menu">Rp30.000</span>
-  </button>
+  <header class="header">
+    <div>
+      <h1>🛒 Kasir Cemerlang</h1>
+      <p>Sistem Kasir Digital dan Pembayaran QR</p>
+    </div>
+    <span class="status-online">● Aktif</span>
+  </header>
 
-  <button class="menu-btn" onclick="tambahkeKeranjang('nasi goreng', 15000)">
-    <img src="gambar/nasi-goreng.jpg" alt="Nasi Goreng">
-    Nasi Goreng Pedas 🍛
-    <span class="harga-menu">Rp15.000</span>
-  </button>
+  <!-- SALDO -->
+  <section class="saldo-box">
+    <div class="saldo-header">
+      <span>💰 Saldo Kasir</span>
+      <span class="saldo-status">● Aktif</span>
+    </div>
 
-  <button class="menu-btn" onclick="tambahkeKeranjang('es teh manis', 5000)">
-    <img src="gambar/es-teh.jpg" alt="Es Teh">
-    Es Teh Manis 🍹
-    <span class="harga-menu">Rp5.000</span>
-  </button>
+    <h2 id="saldo-kasir">Rp0</h2>
 
-  <button class="menu-btn" onclick="tambahkeKeranjang('donat', 5000)">
-    <img src="gambar/donat.jpg" alt="Donat">
-    Donat 🍩
-    <span class="harga-menu">Rp5.000</span>
-  </button>
+    <div class="saldo-footer">
+      <span>📈 Total Pemasukan</span>
+      <strong id="total-pemasukan">Rp0</strong>
+    </div>
+  </section>
 
-  <button class="menu-btn" onclick="tambahkeKeranjang('sate kambing', 25000)">
-    <img src="gambar/sate-kambing.jpg" alt="Sate Kambing">
-    Sate Kambing 🐐
-    <span class="harga-menu">Rp25.000</span>
-  </button>
+  <!-- MENU -->
+  <h3 class="judul-menu">🍽️ Menu Makanan & Minuman</h3>
+
+  <div class="menu-grid">
+
+    <div class="menu-card">
+      <img src="gambar/mieayam2.jpg" alt="Mie Ayam">
+      <h3>🍜 Mie Ayam</h3>
+      <p>Rp15.000</p>
+      <button onclick="tambahKeKeranjang('Mie Ayam',15000)">+ Tambah</button>
+    </div>
+
+    <div class="menu-card">
+      <img src="gambar/ayam-geprek.jpg" alt="Ayam Geprek">
+      <h3>🍗 Ayam Geprek Jago</h3>
+      <p>Rp30.000</p>
+      <button onclick="tambahKeKeranjang('Ayam Geprek Jago',30000)">+ Tambah</button>
+    </div>
+
+    <div class="menu-card">
+      <img src="gambar/nasi-goreng.jpg" alt="Nasi Goreng">
+      <h3>🍛 Nasi Goreng Pedas</h3>
+      <p>Rp15.000</p>
+      <button onclick="tambahKeKeranjang('Nasi Goreng Pedas',15000)">+ Tambah</button>
+    </div>
+
+    <div class="menu-card">
+      <img src="gambar/es-teh.jpg" alt="Es Teh">
+      <h3>🍹 Es Teh Manis</h3>
+      <p>Rp5.000</p>
+      <button onclick="tambahKeKeranjang('Es Teh Manis',5000)">+ Tambah</button>
+    </div>
+
+    <div class="menu-card">
+      <img src="gambar/donat.jpg" alt="Donat">
+      <h3>🍩 Donat</h3>
+      <p>Rp5.000</p>
+      <button onclick="tambahKeKeranjang('Donat',5000)">+ Tambah</button>
+    </div>
+
+    <div class="menu-card">
+      <img src="gambar/sate-kambing.jpg" alt="Sate Kambing">
+      <h3>🐐 Sate Kambing</h3>
+      <p>Rp25.000</p>
+      <button onclick="tambahKeKeranjang('Sate Kambing',25000)">+ Tambah</button>
+    </div>
+
+  </div>
+
+  <!-- KERANJANG -->
+  <section class="keranjang-box">
+    <h3>🛒 Keranjang Belanja</h3>
+
+    <div id="daftar-keranjang">
+      <p class="keranjang-kosong">Belum ada pesanan.</p>
+    </div>
+  </section>
+
+  <!-- TOTAL -->
+  <section class="summary-box">
+    <h3>Total Tagihan</h3>
+
+    <div id="total-harga" class="total-teks">Rp0</div>
+
+    <div class="action-btns">
+      <button id="btn-bayar" class="btn-main" disabled onclick="buatTransaksiQR()">
+        Buat QR
+      </button>
+
+      <button id="btn-reset" class="btn-reset" onclick="resetKeranjang()">
+        Reset
+      </button>
+    </div>
+  </section>
+
+  <!-- QR -->
+  <section id="qr-section" class="qr-section hidden">
+
+    <h3>📱 Pembayaran QR</h3>
+
+    <p class="id-label">ID Transaksi</p>
+    <h3 id="tx-id-display">-</h3>
+
+    <div class="qr-wrapper">
+      <canvas id="qr-canvas"></canvas>
+    </div>
+
+    <div id="status-box" class="status-box status-pending">
+      ⏳ <strong id="status-teks">Menunggu pembayaran...</strong>
+    </div>
+
+    <p class="qr-info">
+      QR ini berisi ID transaksi untuk konfirmasi pembayaran.
+    </p>
+
+  </section>
 
 </div>
-    
-    <!---ringkas total dan aksi bayar/reset-->
-    <div class="summary-box">
-      <h3>Total tagihan</h3>
-      <div id="total-harga" class="total-teks">Rp. 0</div>
-      <div class="action-btns">
-        <button id="btn-bayar" class="btn-main" disabled>buat QR</button>
-        <button id="btn-reset" class="btn-reset" onclick="resetKeranjang()">reset</button>
-      </div>
-    </div>
-    
-    <!---area tampil qr code--->
-    <div id="qr-section" class="hidden">
-      <h3>ID <span id="tx-id-display">-</span></h3>
-      <canvas id="qr-canvas"></canvas>
-      <div id="status-box"  class="status-box status-pending">
-        Status: <strong id="status-teks">Menunggu pembayaran...</strong>
-      </div>
-    </div>
-  </div>
+
+<!-- NOTIFIKASI -->
+<div id="notifikasi-kasir" class="notifikasi hidden"></div>
+
 <script type="module" src="main.js"></script>
 </body>
 </html>
