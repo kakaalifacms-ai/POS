@@ -407,7 +407,7 @@ async function buatTransaksiQR() {
     const dokumenBaru = doc(collection(db, "transaksi"));
     trxIdSekarang = "TRX-" + dokumenBaru.id;
 
-    const transaksiRef = doc(db, "transaksi", dokumenBaru.id);
+   const transaksiRef = doc(db, "transaksi", trxIdSekarang);
 
     await setDoc(transaksiRef, {
       trxId: trxIdSekarang,
@@ -458,8 +458,7 @@ function listenStatusPembayaran(trxId) {
     unsubscribeListener();
   }
 
-  const idDokumen = trxId.replace("TRX-", "");
-  const transaksiRef = doc(db, "transaksi", idDokumen);
+  const transaksiRef = doc(db, "transaksi", trxId);
 
   let notifikasiDalamProses = false;
 
@@ -585,9 +584,9 @@ async function prosesSaldoTransaksi(transaksiRef) {
     }
 
     transaction.set(saldoRef, {
-      saldoKasir: saldoLama + total,
-      totalPemasukan: pemasukanLama + total
-    }, { merge: true });
+  saldo: saldoLama + total,
+  totalPemasukan: pemasukanLama + total
+}, { merge: true });
 
     transaction.update(transaksiRef, {
       saldoDiproses: true,
