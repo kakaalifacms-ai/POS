@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -10,6 +11,7 @@
 
 <div class="container">
 
+  <!-- HEADER -->
   <header class="header">
     <div>
       <h1>🛒 Kasir Cemerlang</h1>
@@ -21,7 +23,7 @@
   <!-- SALDO -->
   <section class="saldo-box">
     <div class="saldo-header">
-      <span>💰 Saldo Kasir</span>
+      <span>💳 Saldo Kasir</span>
       <span class="saldo-status">● Aktif</span>
     </div>
 
@@ -36,50 +38,9 @@
   <!-- MENU -->
   <h3 class="judul-menu">🍽️ Menu Makanan & Minuman</h3>
 
-  <div class="menu-grid">
-
-    <div class="menu-card">
-      <img src="gambar/mieayam2.jpg" alt="Mie Ayam">
-      <h3>🍜 Mie Ayam</h3>
-      <p>Rp15.000</p>
-      <button onclick="tambahKeKeranjang('Mie Ayam',15000)">+ Tambah</button>
-    </div>
-
-    <div class="menu-card">
-      <img src="gambar/ayam-geprek.jpg" alt="Ayam Geprek">
-      <h3>🍗 Ayam Geprek Jago</h3>
-      <p>Rp30.000</p>
-      <button onclick="tambahKeKeranjang('Ayam Geprek Jago',30000)">+ Tambah</button>
-    </div>
-
-    <div class="menu-card">
-      <img src="gambar/nasi-goreng.jpg" alt="Nasi Goreng">
-      <h3>🍛 Nasi Goreng Pedas</h3>
-      <p>Rp15.000</p>
-      <button onclick="tambahKeKeranjang('Nasi Goreng Pedas',15000)">+ Tambah</button>
-    </div>
-
-    <div class="menu-card">
-      <img src="gambar/es-teh.jpg" alt="Es Teh">
-      <h3>🍹 Es Teh Manis</h3>
-      <p>Rp5.000</p>
-      <button onclick="tambahKeKeranjang('Es Teh Manis',5000)">+ Tambah</button>
-    </div>
-
-    <div class="menu-card">
-      <img src="gambar/donat.jpg" alt="Donat">
-      <h3>🍩 Donat</h3>
-      <p>Rp5.000</p>
-      <button onclick="tambahKeKeranjang('Donat',5000)">+ Tambah</button>
-    </div>
-
-    <div class="menu-card">
-      <img src="gambar/sate-kambing.jpg" alt="Sate Kambing">
-      <h3>🐐 Sate Kambing</h3>
-      <p>Rp25.000</p>
-      <button onclick="tambahKeKeranjang('Sate Kambing',25000)">+ Tambah</button>
-    </div>
-
+  <!-- MENU OTOMATIS DARI FIREBASE -->
+  <div id="menu-grid" class="menu-grid">
+    <p class="keranjang-kosong">Memuat menu...</p>
   </div>
 
   <!-- KERANJANG -->
