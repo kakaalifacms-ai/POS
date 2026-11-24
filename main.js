@@ -1,342 +1,160 @@
 
-// ==========================================
-// 1. IMPORT FIREBASE DAN QR CODE
-// ==========================================
-
-import { initializeApp } from
-"https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
 import {
   getFirestore,
   doc,
-  collection,
   setDoc,
   onSnapshot,
   runTransaction,
+  collection,
   addDoc,
   updateDoc,
   deleteDoc,
   getDocs
-} from
-"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 import QRCode from "https://esm.sh/qrcode@1.5.3";
 
 // ==========================================
-// 2. KONFIGURASI FIREBASE
+// 1. FIREBASE CONFIG
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC_1XwbW-9zcNkRJXIQr4N1GgAyzQr6O2g",
-  authDomain: "uasgenap2026-549f7.firebaseapp.com",
-  projectId: "uasgenap2026-549f7",
-  storageBucket: "uasgenap2026-549f7.firebasestorage.app",
-  messagingSenderId: "560108074909",
-  appId: "1:560108074909:web:50c7719780334c88bee174"
+  apiKey: "AIzaSyA6I1Tvw61wzc6-2MVmcWXfZ17IwDYj7u4",
+  authDomain: "rpl25-b6db4.firebaseapp.com",
+  projectId: "rpl25-b6db4",
+  storageBucket: "rpl25-b6db4.firebasestorage.app",
+  messagingSenderId: "643920833293",
+  appId: "1:643920833293:web:f5ac7fdc746e4e410d5e44"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Referensi database
-const saldoRef = doc(db, "pengaturan", "saldoKasir");
-const menuRef = collection(db, "menu");
-const penjualRef = collection(db, "penjual");
-
 // ==========================================
-// 3. VARIABEL GLOBAL
+// 2. IDENTITAS KASIR KAKA
 // ==========================================
 
-let semuaMenu = [];
-let semuaPenjual = [];
+const kasirId = "KASIR001";
+const namaKasir = "Kaka";
 
-let keranjang = {};
+// SALDO KHUSUS KAKA
+const saldoKasirRef = doc(db, "kasir", kasirId);
+
+// MENU DAN PENJUAL KHUSUS KAKA
+const menuRef = collection(db, "menu_KASIR001");
+const penjualRef = collection(db, "penjual_KASIR001");
+
+// TRANSAKSI TETAP BERSAMA
+const transaksiRef = collection(db, "transaksi");
+
+// ==========================================
+// 3. VARIABEL
+// ==========================================
+
 let totalHarga = 0;
-
 let trxIdSekarang = "";
+
 let unsubscribeListener = null;
 
-let prosesSedangBerjalan = false;
-let sedangMemprosesSaldo = false;
 let suaraDiaktifkan = false;
-let notifikasiSudahDitampilkan = false;
+let prosesSedangBerjalan = false;
 let pembayaranLunas = false;
 
-let fileGambarTerpilih = null;
+let dataMenuTersimpan = {};
+let dataPenjualTersimpan = {};
+
+const menuGrid = document.getElementById("menu-grid");
+const daftarCrudMenu = document.getElementById("daftar-crud-menu");
+const formCrudMenu = document.getElementById("form-crud-menu");
+
+const fileInput = document.getElementById("crud-gambar-file");
+const previewContainer = document.getElementById("preview-container");
+const previewImg = document.getElementById("crud-preview");
+
+const formPenjual = document.getElementById("form-penjual");
+const daftarPenjual = document.getElementById("daftar-penjual");
+const selectPenjual = document.getElementById("crud-penjual-id");
 
 // ==========================================
-// 4. FUNGSI BANTUAN
+// 4. FORMAT RUPIAH
 // ==========================================
 
-function rupiah(angka) {
+function formatRupiah(angka) {
   return "Rp" + Number(angka || 0).toLocaleString("id-ID");
 }
 
-function aman(teks) {
-  return String(teks ?? "").replace(/[&<>"']/g, karakter => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[karakter]);
-}
-
-function tampilkanPesan(pesan) {
-  alert(pesan);
-}
-
 // ==========================================
-// 5. MENAMPILKAN SALDO KASIR
+// 5. SALDO KASIR KAKA
 // ==========================================
 
-onSnapshot(saldoRef, snapshot => {
-  const data = snapshot.exists() ? snapshot.data() : {};
+const elSaldoKasir = document.getElementById("saldo-kasir");
+const elTotalPemasukan = document.getElementById("total-pemasukan");
 
-  const saldo = Number(data.saldoKasir ?? data.saldo ?? 0);
-  const pemasukan = Number(data.totalPemasukan ?? 0);
+onSnapshot(saldoKasirRef, async (snapshot) => {
 
-  const elemenSaldo = document.getElementById("saldo-kasir");
-  const elemenPemasukan = document.getElementById("total-pemasukan");
+  try {
 
-  if (elemenSaldo) {
-    elemenSaldo.textContent = rupiah(saldo);
+    if (!snapshot.exists()) {
+
+      await setDoc(saldoKasirRef, {
+        kasirId,
+        namaKasir,
+        saldo: 0,
+        totalPemasukan: 0
+      });
+
+      return;
+    }
+
+    const data = snapshot.data();
+
+    if (elSaldoKasir) {
+      elSaldoKasir.innerText = formatRupiah(data.saldo);
+    }
+
+    if (elTotalPemasukan) {
+      elTotalPemasukan.innerText =
+        formatRupiah(data.totalPemasukan);
+    }
+
+  } catch (error) {
+
+    console.error("Gagal mengambil saldo:", error);
+
   }
 
-  if (elemenPemasukan) {
-    elemenPemasukan.textContent = rupiah(pemasukan);
-  }
-}, error => {
-  console.error("Gagal membaca saldo:", error);
+}, (error) => {
+  console.error("Listener saldo gagal:", error);
 });
 
 // ==========================================
-// 6. MEMBACA DATA MENU
-// ==========================================
-
-onSnapshot(menuRef, snapshot => {
-  semuaMenu = snapshot.docs.map(item => ({
-    id: item.id,
-    ...item.data()
-  }));
-
-  tampilkanMenuKasir();
-  tampilkanDaftarCrudMenu();
-}, error => {
-  console.error("Gagal membaca menu:", error);
-
-  const grid = document.getElementById("menu-grid");
-  if (grid) {
-    grid.innerHTML = '<p class="keranjang-kosong">Gagal memuat menu.</p>';
-  }
-});
-
-// ==========================================
-// 7. MEMBACA DATA PENJUAL
-// ==========================================
-
-onSnapshot(penjualRef, snapshot => {
-  semuaPenjual = snapshot.docs.map(item => ({
-    id: item.id,
-    ...item.data()
-  }));
-
-  tampilkanDaftarPenjual();
-  isiPilihanPenjual();
-  tampilkanMenuKasir();
-  tampilkanDaftarCrudMenu();
-}, error => {
-  console.error("Gagal membaca penjual:", error);
-});
-
-// ==========================================
-// 8. MENAMPILKAN MENU DI HALAMAN KASIR
-// ==========================================
-
-function tampilkanMenuKasir() {
-  const grid = document.getElementById("menu-grid");
-  if (!grid) return;
-
-  if (semuaMenu.length === 0) {
-    grid.innerHTML =
-      '<p class="keranjang-kosong">Belum ada menu. Tambahkan melalui halaman kelola data.</p>';
-    return;
-  }
-
-  grid.innerHTML = semuaMenu.map((menu, index) => {
-    const penjual = semuaPenjual.find(p => p.id === menu.penjualId);
-    const namaPenjual = penjual?.nama || "Penjual tidak ditemukan";
-
-    return `
-      <div class="menu-card">
-        ${
-          menu.gambar
-            ? `<img src="${menu.gambar}" alt="${aman(menu.nama)}">`
-            : `<div class="menu-no-image">Foto belum tersedia</div>`
-        }
-        <div class="menu-info">
-          <h4>${aman(menu.nama)}</h4>
-          <p class="harga-menu">${rupiah(menu.harga)}</p>
-          <p class="penjual-label">${aman(namaPenjual)}</p>
-          <button
-            class="btn-tambah"
-            type="button"
-            data-tambah-menu="${index}">
-            + Tambah
-          </button>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-document.getElementById("menu-grid")?.addEventListener("click", event => {
-  const tombol = event.target.closest("[data-tambah-menu]");
-  if (!tombol) return;
-
-  const index = Number(tombol.dataset.tambahMenu);
-  const menu = semuaMenu[index];
-
-  if (menu) {
-    tambahKeKeranjang(menu.nama, Number(menu.harga));
-  }
-});
-
-// ==========================================
-// 9. KERANJANG BELANJA
-// ==========================================
-
-function tambahKeKeranjang(nama, harga) {
-  if (prosesSedangBerjalan || pembayaranLunas) {
-    tampilkanPesan("Transaksi sebelumnya belum selesai.");
-    return;
-  }
-
-  if (!keranjang[nama]) {
-    keranjang[nama] = {
-      harga: Number(harga),
-      jumlah: 0
-    };
-  }
-
-  keranjang[nama].jumlah++;
-
-  hitungTotal();
-  tampilkanKeranjang();
-}
-
-function hitungTotal() {
-  totalHarga = 0;
-
-  Object.values(keranjang).forEach(item => {
-    totalHarga += item.harga * item.jumlah;
-  });
-
-  const elemenTotal = document.getElementById("total-harga");
-  if (elemenTotal) {
-    elemenTotal.textContent = rupiah(totalHarga);
-  }
-
-  const tombolBayar = document.getElementById("btn-bayar");
-  if (tombolBayar) {
-    tombolBayar.disabled = totalHarga <= 0 || prosesSedangBerjalan;
-  }
-}
-
-function tampilkanKeranjang() {
-  const daftar = document.getElementById("daftar-keranjang");
-  if (!daftar) return;
-
-  const namaMenu = Object.keys(keranjang);
-
-  if (namaMenu.length === 0) {
-    daftar.innerHTML =
-      '<p class="keranjang-kosong">Belum ada pesanan.</p>';
-    hitungTotal();
-    return;
-  }
-
-  daftar.innerHTML = namaMenu.map(nama => {
-    const item = keranjang[nama];
-    const subtotal = item.harga * item.jumlah;
-
-    return `
-      <div class="item-keranjang">
-        <div>
-          <strong>${aman(nama)}</strong>
-          <p>${rupiah(item.harga)} × ${item.jumlah}</p>
-        </div>
-        <strong>${rupiah(subtotal)}</strong>
-      </div>
-    `;
-  }).join("");
-
-  hitungTotal();
-}
-
-window.tambahKeKeranjang = tambahKeKeranjang;
-
-// ==========================================
-// 10. RESET KERANJANG
-// ==========================================
-
-function resetKeranjang() {
-  if (prosesSedangBerjalan || pembayaranLunas) {
-    tampilkanPesan("Transaksi sedang berlangsung. Keranjang tidak dapat direset.");
-    return;
-  }
-
-  keranjang = {};
-  totalHarga = 0;
-  trxIdSekarang = "";
-  notifikasiSudahDitampilkan = false;
-
-  const qrSection = document.getElementById("qr-section");
-  const txDisplay = document.getElementById("tx-id-display");
-  const statusBox = document.getElementById("status-box");
-  const statusTeks = document.getElementById("status-teks");
-  const canvas = document.getElementById("qr-canvas");
-  const notifikasi = document.getElementById("notifikasi-kasir");
-
-  if (unsubscribeListener) {
-    unsubscribeListener();
-    unsubscribeListener = null;
-  }
-
-  if (qrSection) qrSection.classList.add("hidden");
-  if (txDisplay) txDisplay.textContent = "-";
-  if (statusTeks) statusTeks.textContent = "Menunggu pembayaran...";
-  if (statusBox) statusBox.className = "status-box status-pending";
-  if (canvas) {
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-  if (notifikasi) notifikasi.classList.add("hidden");
-
-  tampilkanKeranjang();
-}
-
-window.resetKeranjang = resetKeranjang;
-
-// ==========================================
-// 11. SUARA NOTIFIKASI
+// 6. AUDIO NOTIFIKASI
 // ==========================================
 
 function aktifkanSuara() {
+
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.resume();
+
   suaraDiaktifkan = true;
 }
 
 function suaraKasir(teks) {
-  if (!suaraDiaktifkan || !("speechSynthesis" in window)) return;
+
+  if (!("speechSynthesis" in window)) return;
+  if (!suaraDiaktifkan) return;
 
   window.speechSynthesis.cancel();
 
   const ucapan = new SpeechSynthesisUtterance(teks);
-  ucapan.lang = "id-ID";
-  ucapan.rate = 0.9;
 
-  const suara = window.speechSynthesis.getVoices();
-  const suaraIndonesia = suara.find(v =>
+  const daftarSuara = window.speechSynthesis.getVoices();
+
+  const suaraIndonesia = daftarSuara.find(v =>
     v.lang.toLowerCase().startsWith("id")
   );
 
@@ -344,669 +162,1069 @@ function suaraKasir(teks) {
     ucapan.voice = suaraIndonesia;
   }
 
+  ucapan.lang = "id-ID";
+  ucapan.rate = 0.75;
+  ucapan.pitch = 1;
+  ucapan.volume = 1;
+
   window.speechSynthesis.speak(ucapan);
 }
 
-function ubahIdMenjadiSuara(id) {
-  return id.split("").join(" ");
-}
+// ==========================================
+// 7. NOTIFIKASI PEMBAYARAN
+// ==========================================
 
-function notifikasiPembayaran(total, id) {
-  const elemen = document.getElementById("notifikasi-kasir");
-  if (!elemen) return;
+function notifikasiPembayaran(total, idTransaksi) {
 
-  elemen.textContent =
-    "Pembayaran berhasil! Total " + rupiah(total) +
-    ". ID transaksi " + id;
+  const lama = document.getElementById("notifikasi-kasir");
 
-  elemen.classList.remove("hidden");
+  if (lama) lama.remove();
+
+  const notifikasi = document.createElement("div");
+
+  notifikasi.id = "notifikasi-kasir";
+
+  notifikasi.innerHTML = `
+    <div style="font-size:40px;">✅</div>
+
+    <h3>PEMBAYARAN BERHASIL!</h3>
+
+    <p>Saldo masuk:</p>
+
+    <h2>${formatRupiah(total)}</h2>
+
+    <p>ID Transaksi:</p>
+
+    <h3>${idTransaksi}</h3>
+
+    <p>Kasir: ${namaKasir}</p>
+
+    <p>Status: <b>LUNAS</b></p>
+  `;
+
+  notifikasi.style.cssText = `
+    position:fixed;
+    top:20px;
+    left:5%;
+    width:90%;
+    box-sizing:border-box;
+    background:#d4edda;
+    color:#155724;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+    z-index:99999;
+    box-shadow:0 4px 15px rgba(0,0,0,0.2);
+    font-family:Arial,sans-serif;
+  `;
+
+  document.body.appendChild(notifikasi);
 
   suaraKasir(
-    "Pembayaran berhasil. Total " +
+    "Pembayaran berhasil. Uang masuk sebesar " +
     Number(total).toLocaleString("id-ID") +
-    " rupiah. ID transaksi " +
-    ubahIdMenjadiSuara(id)
+    " rupiah. Terima kasih sudah berbelanja."
   );
 
   setTimeout(() => {
-    elemen.classList.add("hidden");
+    notifikasi.remove();
   }, 5000);
 }
 
 // ==========================================
-// 12. MEMBUAT TRANSAKSI QR
+// 8. TAMBAH ITEM KERANJANG
 // ==========================================
 
-async function buatTransaksiQR() {
-  if (prosesSedangBerjalan || pembayaranLunas) return;
+window.tambahKeKeranjang = function(nama, harga) {
 
-  if (totalHarga <= 0) {
-    tampilkanPesan("Keranjang masih kosong.");
+  if (prosesSedangBerjalan || trxIdSekarang) return;
+
+  totalHarga += Number(harga);
+
+  document.getElementById("total-harga").innerText =
+    formatRupiah(totalHarga);
+
+  document.getElementById("btn-bayar").disabled = false;
+};
+
+// ==========================================
+// 9. RESET KERANJANG
+// ==========================================
+
+window.resetKeranjang = function() {
+
+  if (prosesSedangBerjalan) {
+
+    alert("Transaksi sedang dibuat!");
     return;
   }
 
-  aktifkanSuara();
-  prosesSedangBerjalan = true;
+  if (trxIdSekarang && !pembayaranLunas) {
 
-  const tombolBayar = document.getElementById("btn-bayar");
-  if (tombolBayar) {
-    tombolBayar.disabled = true;
-    tombolBayar.textContent = "Membuat QR...";
+    alert("Transaksi masih menunggu pembayaran. Selesaikan atau batalkan melalui prosedur yang sesuai terlebih dahulu.");
+    return;
   }
 
+  totalHarga = 0;
+
+  document.getElementById("total-harga").innerText = "Rp0";
+
+  document.getElementById("btn-bayar").disabled = true;
+
+  document.getElementById("qr-section").classList.add("hidden");
+
+  if (unsubscribeListener) {
+    unsubscribeListener();
+    unsubscribeListener = null;
+  }
+
+  trxIdSekarang = "";
+  pembayaranLunas = false;
+
+  document.getElementById("qr-canvas").style.opacity = "1";
+};
+
+// ==========================================
+// 10. MEMBUAT TRANSAKSI QR
+// ==========================================
+
+window.buatTransaksiQR = async function() {
+
+  if (
+    prosesSedangBerjalan ||
+    totalHarga <= 0 ||
+    trxIdSekarang
+  ) return;
+
+  prosesSedangBerjalan = true;
+  aktifkanSuara();
+
+  const totalTransaksi = totalHarga;
+
+  document.getElementById("btn-bayar").disabled = true;
+
+  trxIdSekarang =
+    "TRX-" + Date.now() + "-" +
+    Math.floor(Math.random() * 1000);
+
+  const idTransaksi = trxIdSekarang;
+
+  document.getElementById("tx-id-display").innerText =
+    idTransaksi;
+
+  document.getElementById("qr-section").classList.remove("hidden");
+
+  document.getElementById("status-box").className =
+    "status-box status-pending";
+
+  document.getElementById("status-teks").innerText =
+    "Menunggu pembayaran...";
+
+  document.getElementById("total-harga").innerText =
+    formatRupiah(totalTransaksi);
+
+  const canvas = document.getElementById("qr-canvas");
+
+  canvas.style.opacity = "1";
+
   try {
-    const totalTransaksi = totalHarga;
 
-    const items = Object.entries(keranjang).map(([nama, item]) => ({
-      nama,
-      harga: item.harga,
-      jumlah: item.jumlah,
-      subtotal: item.harga * item.jumlah
-    }));
-
-    const dokumenBaru = doc(collection(db, "transaksi"));
-    trxIdSekarang = "TRX-" + dokumenBaru.id;
-
-   const transaksiRef = doc(db, "transaksi", trxIdSekarang);
-
-    await setDoc(transaksiRef, {
-      trxId: trxIdSekarang,
-      total: totalTransaksi,
-      items,
-      status: "takterbayar",
-      saldoDiproses: false,
-      waktuBuat: Date.now()
+    await QRCode.toCanvas(canvas, idTransaksi, {
+      width: 140,
+      margin: 1
     });
 
-    const qrSection = document.getElementById("qr-section");
-    const txDisplay = document.getElementById("tx-id-display");
-    const canvas = document.getElementById("qr-canvas");
+    const refTrx = doc(transaksiRef, idTransaksi);
 
-    if (qrSection) qrSection.classList.remove("hidden");
-    if (txDisplay) txDisplay.textContent = trxIdSekarang;
+    await setDoc(refTrx, {
 
-    if (canvas) {
-      await QRCode.toCanvas(canvas, trxIdSekarang, {
-        width: 220,
-        margin: 2
-      });
-    }
+      total: totalTransaksi,
+      status: "takterbayar",
+      saldoDiproses: false,
 
-    listenStatusPembayaran(trxIdSekarang);
+      kasirId: kasirId,
+      namaKasir: namaKasir,
+
+      waktuBuat: Date.now()
+
+    });
+
+    listenStatusPembayaran(idTransaksi);
 
   } catch (error) {
+
     console.error("Gagal membuat transaksi:", error);
-    tampilkanPesan("Gagal membuat transaksi. Periksa koneksi internet.");
+
+    alert("Transaksi gagal dibuat. Periksa aturan Firestore.");
+
+    trxIdSekarang = "";
+
+    document.getElementById("btn-bayar").disabled = false;
+
+    document.getElementById("qr-section").classList.add("hidden");
+
+  } finally {
 
     prosesSedangBerjalan = false;
 
-    if (tombolBayar) {
-      tombolBayar.textContent = "Buat QR";
-      tombolBayar.disabled = false;
-    }
   }
-}
-
-window.buatTransaksiQR = buatTransaksiQR;
+};
 
 // ==========================================
-// 13. MEMANTAU STATUS PEMBAYARAN
+// 11. PROSES SALDO KHUSUS KAKA
+// ==========================================
+
+async function prosesSaldoKasir(trxId) {
+
+  const refTrx = doc(transaksiRef, trxId);
+
+  return await runTransaction(db, async (transaction) => {
+
+    const trxSnapshot = await transaction.get(refTrx);
+
+    if (!trxSnapshot.exists()) return false;
+
+    const dataTrx = trxSnapshot.data();
+
+    if (
+      dataTrx.status !== "terbayar" ||
+      dataTrx.saldoDiproses === true
+    ) return false;
+
+    // CEK PEMILIK TRANSAKSI
+    if (dataTrx.kasirId !== kasirId) return false;
+
+    const jumlah = Number(dataTrx.total);
+
+    const saldoSnapshot =
+      await transaction.get(saldoKasirRef);
+
+    const saldoLama = saldoSnapshot.exists()
+      ? Number(saldoSnapshot.data().saldo || 0)
+      : 0;
+
+    const pemasukanLama = saldoSnapshot.exists()
+      ? Number(saldoSnapshot.data().totalPemasukan || 0)
+      : 0;
+
+    transaction.set(saldoKasirRef, {
+
+      kasirId,
+      namaKasir,
+
+      saldo: saldoLama + jumlah,
+      totalPemasukan: pemasukanLama + jumlah,
+
+      diperbarui: Date.now()
+
+    }, { merge: true });
+
+    transaction.update(refTrx, {
+
+      saldoDiproses: true,
+      waktuSaldoMasuk: Date.now()
+
+    });
+
+    return true;
+
+  });
+}
+
+// ==========================================
+// 12. PANTAU STATUS PEMBAYARAN
 // ==========================================
 
 function listenStatusPembayaran(trxId) {
-  if (unsubscribeListener) {
-    unsubscribeListener();
-  }
 
-  const transaksiRef = doc(db, "transaksi", trxId);
+  const refTrx = doc(transaksiRef, trxId);
 
-  let notifikasiDalamProses = false;
+  let sedangMemproses = false;
+  let notifikasiSudahDitampilkan = false;
 
-  unsubscribeListener = onSnapshot(transaksiRef, async snapshot => {
-    if (!snapshot.exists()) return;
+  unsubscribeListener = onSnapshot(
 
-    const data = snapshot.data();
+    refTrx,
 
-    if (data.status === "terbayar") {
-      pembayaranLunas = true;
+    async (snapshot) => {
 
-      const statusBox = document.getElementById("status-box");
-      const statusTeks = document.getElementById("status-teks");
-      const canvas = document.getElementById("qr-canvas");
+      if (!snapshot.exists()) return;
 
-      if (statusBox) {
-        statusBox.className = "status-box status-success";
-      }
+      const data = snapshot.data();
 
-      if (statusTeks) {
-        statusTeks.textContent = "Pembayaran berhasil!";
-      }
+      if (data.status !== "terbayar") return;
 
-      if (canvas) {
-        canvas.style.opacity = "0.35";
-      }
+      // CEK IDENTITAS KASIR
+      if (data.kasirId !== kasirId) return;
+
+      document.getElementById("status-box").className =
+        "status-box status-success";
+
+      document.getElementById("status-teks").innerText =
+        "🥳 LUNAS";
+
+      document.getElementById("qr-canvas").style.opacity = "0.2";
 
       if (data.saldoDiproses === true) {
+
+        pembayaranLunas = true;
+
         if (!notifikasiSudahDitampilkan) {
+
           notifikasiSudahDitampilkan = true;
+
           notifikasiPembayaran(data.total, trxId);
+
         }
 
-        prosesSedangBerjalan = false;
-
         if (unsubscribeListener) {
+
           unsubscribeListener();
           unsubscribeListener = null;
+
         }
 
         return;
       }
 
-      if (sedangMemprosesSaldo || notifikasiDalamProses) return;
+      if (sedangMemproses) return;
 
-      sedangMemprosesSaldo = true;
-      notifikasiDalamProses = true;
+      sedangMemproses = true;
 
       try {
-        await prosesSaldoTransaksi(transaksiRef);
 
-        if (!notifikasiSudahDitampilkan) {
-          notifikasiSudahDitampilkan = true;
-          notifikasiPembayaran(data.total, trxId);
-        }
+        const berhasil = await prosesSaldoKasir(trxId);
 
-        prosesSedangBerjalan = false;
+        if (berhasil) {
 
-        if (unsubscribeListener) {
-          unsubscribeListener();
-          unsubscribeListener = null;
+          pembayaranLunas = true;
+
+          if (!notifikasiSudahDitampilkan) {
+
+            notifikasiSudahDitampilkan = true;
+
+            notifikasiPembayaran(data.total, trxId);
+
+          }
+
+          if (unsubscribeListener) {
+
+            unsubscribeListener();
+            unsubscribeListener = null;
+
+          }
+
         }
 
       } catch (error) {
+
         console.error("Gagal memproses saldo:", error);
-        tampilkanPesan("Pembayaran terdeteksi, tetapi saldo gagal diproses. Periksa database.");
-        notifikasiDalamProses = false;
+
       } finally {
-        sedangMemprosesSaldo = false;
+
+        sedangMemproses = false;
+
       }
+
+    },
+
+    (error) => {
+      console.error("Gagal memantau pembayaran:", error);
     }
-  }, error => {
-    console.error("Listener transaksi gagal:", error);
-  });
+
+  );
 }
 
 // ==========================================
-// 14. PROSES SALDO DENGAN TRANSACTION
+// 13. DAFTARKAN PENJUAL KHUSUS KAKA
 // ==========================================
 
-async function prosesSaldoTransaksi(transaksiRef) {
-  await runTransaction(db, async transaction => {
-    const transaksiSnap = await transaction.get(transaksiRef);
+if (formPenjual) {
 
-    if (!transaksiSnap.exists()) {
-      throw new Error("Transaksi tidak ditemukan.");
-    }
+  formPenjual.addEventListener("submit", async (e) => {
 
-    const data = transaksiSnap.data();
+    e.preventDefault();
 
-    if (data.status !== "terbayar") {
-      throw new Error("Transaksi belum dibayar.");
-    }
+    const id = document.getElementById("penjual-id-baru")
+      .value.trim().toUpperCase();
 
-    if (data.saldoDiproses === true) {
+    const nama = document.getElementById("penjual-nama-baru")
+      .value.trim();
+
+    if (!id || !nama) {
+
+      alert("Lengkapi ID dan nama penjual!");
       return;
+
     }
 
-    const total = Number(data.total);
+    if (!/^[A-Z0-9]+$/.test(id)) {
+  alert("ID hanya boleh huruf kapital dan angka!");
+  return;
+}
 
-    if (!Number.isSafeInteger(total) || total <= 0) {
-      throw new Error("Total transaksi tidak valid.");
     }
 
-    const saldoSnap = await transaction.get(saldoRef);
-    const saldoData = saldoSnap.exists() ? saldoSnap.data() : {};
+    try {
 
-    const saldoLama = Number(
-      saldoData.saldoKasir ?? saldoData.saldo ?? 0
-    );
+      const refPenjual = doc(penjualRef, id);
 
-    const pemasukanLama = Number(
-      saldoData.totalPemasukan ?? 0
-    );
+      await setDoc(refPenjual, {
 
-    if (
-      !Number.isSafeInteger(saldoLama) ||
-      !Number.isSafeInteger(pemasukanLama) ||
-      saldoLama < 0 ||
-      pemasukanLama < 0
-    ) {
-      throw new Error("Data saldo tidak valid.");
+        idPenjual: id,
+        nama: nama,
+        kasirId: kasirId,
+        waktuDaftar: Date.now()
+
+      });
+
+      formPenjual.reset();
+
+      alert("Identitas penjual Kaka berhasil didaftarkan!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Gagal mendaftarkan penjual.");
+
     }
 
-    transaction.set(saldoRef, {
-  saldo: saldoLama + total,
-  totalPemasukan: pemasukanLama + total
-}, { merge: true });
-
-    transaction.update(transaksiRef, {
-      saldoDiproses: true,
-      waktuSaldoMasuk: Date.now()
-    });
   });
+
 }
 
 // ==========================================
-// 15. UPLOAD FOTO DARI GALERI
+// 14. RENDER DAFTAR PENJUAL KAKA
 // ==========================================
 
-async function ubahFileKeBase64(file) {
-  if (!file || !file.type.startsWith("image/")) {
-    throw new Error("Pilih file gambar yang benar.");
+function renderPenjual() {
+
+  if (daftarPenjual) {
+    daftarPenjual.innerHTML = "";
   }
 
-  const gambar = new Image();
-  const url = URL.createObjectURL(file);
+  if (selectPenjual) {
 
-  try {
-    await new Promise((resolve, reject) => {
-      gambar.onload = resolve;
-      gambar.onerror = reject;
-      gambar.src = url;
-    });
+    selectPenjual.innerHTML =
+      '<option value="">Pilih Identitas Penjual</option>';
 
-    const batasLebar = 400;
-    const skala = Math.min(1, batasLebar / gambar.width);
+  }
 
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(gambar.width * skala);
-    canvas.height = Math.round(gambar.height * skala);
+  Object.entries(dataPenjualTersimpan).forEach(([id, item]) => {
 
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(gambar, 0, 0, canvas.width, canvas.height);
+    if (selectPenjual) {
 
-    const hasil = canvas.toDataURL("image/jpeg", 0.65);
+      const option = document.createElement("option");
 
-    if (hasil.length > 800000) {
-      throw new Error("Ukuran foto masih terlalu besar. Pilih foto lain.");
+      option.value = id;
+
+      option.textContent = `${id} - ${item.nama}`;
+
+      selectPenjual.appendChild(option);
+
     }
 
-    return hasil;
+    if (daftarPenjual) {
 
-  } finally {
-    URL.revokeObjectURL(url);
+      const row = document.createElement("div");
+
+      row.className = "penjual-item";
+
+      const info = document.createElement("div");
+
+      const strong = document.createElement("strong");
+
+      strong.textContent = item.nama;
+
+      const detail = document.createElement("span");
+
+      detail.textContent = "ID: " + id;
+
+      detail.style.display = "block";
+      detail.style.color = "#71808a";
+
+      info.appendChild(strong);
+      info.appendChild(detail);
+
+      const tombol = document.createElement("button");
+
+      tombol.textContent = "Hapus";
+
+      tombol.onclick = () => hapusPenjual(id);
+
+      row.appendChild(info);
+      row.appendChild(tombol);
+
+      daftarPenjual.appendChild(row);
+
+    }
+
+  });
+
+  if (
+    daftarPenjual &&
+    Object.keys(dataPenjualTersimpan).length === 0
+  ) {
+
+    daftarPenjual.innerHTML =
+      "<p style='font-size:12px;color:#888;'>Belum ada penjual terdaftar.</p>";
+
   }
+
+  renderMenu();
+
 }
 
 // ==========================================
-// 16. PREVIEW FOTO MENU
+// 15. AMBIL PENJUAL KHUSUS KAKA
 // ==========================================
 
-const inputGambar = document.getElementById("crud-gambar-file");
+onSnapshot(penjualRef, (snapshot) => {
 
-inputGambar?.addEventListener("change", event => {
-  const file = event.target.files[0];
-  const preview = document.getElementById("crud-preview");
-  const container = document.getElementById("preview-container");
+  dataPenjualTersimpan = {};
 
-  fileGambarTerpilih = file || null;
+  snapshot.forEach((docSnap) => {
 
-  if (!file) return;
+    dataPenjualTersimpan[docSnap.id] =
+      docSnap.data();
 
-  if (!file.type.startsWith("image/")) {
-    tampilkanPesan("File harus berupa gambar.");
-    inputGambar.value = "";
-    fileGambarTerpilih = null;
-    return;
-  }
+  });
 
-  const url = URL.createObjectURL(file);
+  renderPenjual();
 
-  if (preview) preview.src = url;
-  if (container) container.classList.remove("hidden");
+}, (error) => {
+
+  console.error("Gagal mengambil data penjual:", error);
+
 });
 
 // ==========================================
-// 17. TAMBAH IDENTITAS PENJUAL
+// 16. HAPUS PENJUAL KAKA
 // ==========================================
 
-const formPenjual = document.getElementById("form-penjual");
+async function hapusPenjual(id) {
 
-formPenjual?.addEventListener("submit", async event => {
-  event.preventDefault();
+  const snapshot = await getDocs(menuRef);
 
-  const id = document.getElementById("penjual-id-baru").value.trim();
-  const nama = document.getElementById("penjual-nama-baru").value.trim();
+  let masihMemilikiMenu = false;
 
-  if (!id || !nama) {
-    tampilkanPesan("Lengkapi ID dan nama penjual.");
+  snapshot.forEach((item) => {
+
+    if (item.data().penjualId === id) {
+      masihMemilikiMenu = true;
+    }
+
+  });
+
+  if (masihMemilikiMenu) {
+
+    alert("Penjual tidak bisa dihapus karena masih memiliki menu!");
+
+    return;
+
+  }
+
+  if (!confirm("Yakin ingin menghapus identitas penjual ini?")) {
     return;
   }
 
   try {
-    const penjualDokumen = doc(db, "penjual", id);
-    const dataLama = await getDocs(penjualRef);
 
-    const sudahAda = dataLama.docs.some(item => item.id === id);
+    await deleteDoc(doc(penjualRef, id));
 
-    if (sudahAda) {
-      tampilkanPesan("ID penjual sudah digunakan.");
-      return;
-    }
-
-    await setDoc(penjualDokumen, {
-      id,
-      nama,
-      waktuBuat: Date.now()
-    });
-
-    formPenjual.reset();
-    tampilkanPesan("Penjual berhasil ditambahkan.");
+    alert("Identitas penjual berhasil dihapus!");
 
   } catch (error) {
+
     console.error(error);
-    tampilkanPesan("Gagal menambahkan penjual.");
-  }
-});
 
-// ==========================================
-// 18. MENAMPILKAN DATA PENJUAL
-// ==========================================
+    alert("Gagal menghapus penjual.");
 
-function tampilkanDaftarPenjual() {
-  const daftar = document.getElementById("daftar-penjual");
-  if (!daftar) return;
-
-  if (semuaPenjual.length === 0) {
-    daftar.innerHTML =
-      '<p class="loading-text">Belum ada data penjual.</p>';
-    return;
   }
 
-  daftar.innerHTML = semuaPenjual.map(penjual => `
-    <div class="penjual-row">
-      <div class="penjual-info">
-        <strong>${aman(penjual.nama)}</strong>
-        <p>ID: ${aman(penjual.id)}</p>
-      </div>
-      <div class="crud-actions">
-        <button
-          type="button"
-          class="btn-delete"
-          data-hapus-penjual="${aman(penjual.id)}">
-          Hapus
-        </button>
-      </div>
-    </div>
-  `).join("");
 }
 
 // ==========================================
-// 19. HAPUS PENJUAL
+// 17. GAMBAR MENU BASE64
 // ==========================================
 
-document.getElementById("daftar-penjual")?.addEventListener("click", async event => {
-  const tombol = event.target.closest("[data-hapus-penjual]");
-  if (!tombol) return;
+function ubahFileKeBase64(file) {
 
-  const id = tombol.dataset.hapusPenjual;
+  return new Promise((resolve, reject) => {
 
-  if (!confirm("Yakin ingin menghapus penjual ini?")) return;
+    const reader = new FileReader();
 
-  try {
-    const snapshotMenu = await getDocs(menuRef);
+    reader.onload = (e) => {
 
-    const masihMemilikiMenu = snapshotMenu.docs.some(item =>
-      item.data().penjualId === id
-    );
+      const img = new Image();
 
-    if (masihMemilikiMenu) {
-      tampilkanPesan("Penjual tidak bisa dihapus karena masih memiliki menu.");
-      return;
-    }
+      img.onload = () => {
 
-    await deleteDoc(doc(db, "penjual", id));
-    tampilkanPesan("Penjual berhasil dihapus.");
+        const canvas = document.createElement("canvas");
 
-  } catch (error) {
-    console.error(error);
-    tampilkanPesan("Gagal menghapus penjual.");
-  }
-});
+        const maxLebar = 400;
 
-// ==========================================
-// 20. PILIHAN PENJUAL DI FORM MENU
-// ==========================================
+        const skala = Math.min(1, maxLebar / img.width);
 
-function isiPilihanPenjual() {
-  const pilihan = document.getElementById("crud-penjual-id");
-  if (!pilihan) return;
+        canvas.width = img.width * skala;
+        canvas.height = img.height * skala;
 
-  const nilaiLama = pilihan.value;
+        const ctx = canvas.getContext("2d");
 
-  pilihan.innerHTML =
-    '<option value="">Pilih penjual</option>' +
-    semuaPenjual.map(penjual => `
-      <option value="${aman(penjual.id)}">
-        ${aman(penjual.nama)} (${aman(penjual.id)})
-      </option>
-    `).join("");
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
 
-  pilihan.value = nilaiLama;
-}
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
 
-// ==========================================
-// 21. SIMPAN MENU BARU ATAU EDIT MENU
-// ==========================================
+      };
 
-const formMenu = document.getElementById("form-crud-menu");
+      img.onerror = reject;
 
-formMenu?.addEventListener("submit", async event => {
-  event.preventDefault();
+      img.src = e.target.result;
 
-  const id = document.getElementById("crud-menu-id").value;
-  const penjualId = document.getElementById("crud-penjual-id").value;
-  const nama = document.getElementById("crud-nama").value.trim();
-  const harga = Number(document.getElementById("crud-harga").value);
-  const gambarLama = document.getElementById("crud-gambar-lama").value;
-
-  if (!penjualId || !nama || !Number.isSafeInteger(harga) || harga <= 0) {
-    tampilkanPesan("Periksa kembali data menu.");
-    return;
-  }
-
-  if (!semuaPenjual.some(p => p.id === penjualId)) {
-    tampilkanPesan("Pilih penjual yang terdaftar.");
-    return;
-  }
-
-  try {
-    let gambar = gambarLama;
-
-    if (fileGambarTerpilih) {
-      gambar = await ubahFileKeBase64(fileGambarTerpilih);
-    }
-
-    if (!id && !gambar) {
-      tampilkanPesan("Pilih foto menu dari galeri terlebih dahulu.");
-      return;
-    }
-
-    const dataMenu = {
-      penjualId,
-      nama,
-      harga,
-      gambar,
-      waktuUbah: Date.now()
     };
 
-    if (id) {
-      await updateDoc(doc(db, "menu", id), dataMenu);
-      tampilkanPesan("Menu berhasil diperbarui.");
-    } else {
-      await addDoc(menuRef, {
-        ...dataMenu,
-        waktuBuat: Date.now()
-      });
-      tampilkanPesan("Menu berhasil ditambahkan.");
-    }
+    reader.onerror = reject;
 
-    bersihkanFormMenu();
+    reader.readAsDataURL(file);
 
-  } catch (error) {
-    console.error(error);
-    tampilkanPesan("Gagal menyimpan menu: " + error.message);
-  }
-});
+  });
 
-// ==========================================
-// 22. MENAMPILKAN DATA MENU CRUD
-// ==========================================
-
-function tampilkanDaftarCrudMenu() {
-  const daftar = document.getElementById("daftar-crud-menu");
-  if (!daftar) return;
-
-  if (semuaMenu.length === 0) {
-    daftar.innerHTML =
-      '<p class="loading-text">Belum ada menu.</p>';
-    return;
-  }
-
-  daftar.innerHTML = semuaMenu.map(menu => {
-    const penjual = semuaPenjual.find(p => p.id === menu.penjualId);
-
-    return `
-      <div class="crud-row">
-        <div class="crud-info">
-          ${
-            menu.gambar
-              ? `<img src="${menu.gambar}" alt="${aman(menu.nama)}">`
-              : ""
-          }
-          <div>
-            <h4>${aman(menu.nama)}</h4>
-            <p>${rupiah(menu.harga)}</p>
-            <p>Penjual: ${aman(penjual?.nama || "Tidak ditemukan")}</p>
-          </div>
-        </div>
-
-        <div class="crud-actions">
-          <button
-            type="button"
-            class="btn-edit"
-            data-edit-menu="${aman(menu.id)}">
-            Edit
-          </button>
-
-          <button
-            type="button"
-            class="btn-delete"
-            data-hapus-menu="${aman(menu.id)}">
-            Hapus
-          </button>
-        </div>
-      </div>
-    `;
-  }).join("");
 }
 
 // ==========================================
-// 23. TOMBOL EDIT MENU
+// 18. PREVIEW GAMBAR
 // ==========================================
 
-document.getElementById("daftar-crud-menu")?.addEventListener("click", event => {
-  const tombol = event.target.closest("[data-edit-menu]");
-  if (!tombol) return;
+if (fileInput) {
 
-  const id = tombol.dataset.editMenu;
-  const menu = semuaMenu.find(item => item.id === id);
+  fileInput.addEventListener("change", async () => {
 
-  if (!menu) return;
+    const file = fileInput.files[0];
 
-  document.getElementById("crud-menu-id").value = menu.id;
-  document.getElementById("crud-penjual-id").value = menu.penjualId;
-  document.getElementById("crud-nama").value = menu.nama;
-  document.getElementById("crud-harga").value = menu.harga;
-  document.getElementById("crud-gambar-lama").value = menu.gambar || "";
+    if (file) {
 
-  fileGambarTerpilih = null;
+      try {
 
-  const input = document.getElementById("crud-gambar-file");
-  const preview = document.getElementById("crud-preview");
-  const container = document.getElementById("preview-container");
-  const tombolSimpan = document.getElementById("btn-simpan-crud");
+        const hasilBase64 = await ubahFileKeBase64(file);
 
-  if (input) input.value = "";
+        previewImg.src = hasilBase64;
 
-  if (menu.gambar) {
-    if (preview) preview.src = menu.gambar;
-    if (container) container.classList.remove("hidden");
-  } else {
-    if (container) container.classList.add("hidden");
+        previewContainer.classList.remove("hidden");
+
+      } catch (error) {
+
+        alert("Gagal membaca gambar.");
+
+      }
+
+    } else {
+
+      previewImg.src = "";
+
+      previewContainer.classList.add("hidden");
+
+    }
+
+  });
+
+}
+
+// ==========================================
+// 19. RESET FORM CRUD
+// ==========================================
+
+function resetFormCRUD() {
+
+  if (formCrudMenu) formCrudMenu.reset();
+
+  const idEl = document.getElementById("crud-menu-id");
+
+  const lamaEl = document.getElementById("crud-gambar-lama");
+
+  if (idEl) idEl.value = "";
+
+  if (lamaEl) lamaEl.value = "";
+
+  if (previewImg) previewImg.src = "";
+
+  if (previewContainer) {
+    previewContainer.classList.add("hidden");
   }
 
-  if (tombolSimpan) tombolSimpan.textContent = "Update Menu";
+}
 
-  document.getElementById("crud-nama")?.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
+// ==========================================
+// 20. RENDER MENU KHUSUS KAKA
+// ==========================================
+
+function renderMenu() {
+
+  if (menuGrid) {
+
+    document.querySelectorAll(".menu-dinamis")
+      .forEach(el => el.remove());
+
+  }
+
+  if (daftarCrudMenu) {
+    daftarCrudMenu.innerHTML = "";
+  }
+
+  Object.entries(dataMenuTersimpan).forEach(([id, item]) => {
+
+    const namaPenjual =
+      dataPenjualTersimpan[item.penjualId]?.nama ||
+      item.penjualId ||
+      "Umum";
+
+    const gambarTampil =
+      item.gambar ||
+      "https://via.placeholder.com/150?text=No+Image";
+
+    // HALAMAN KASIR
+
+    if (menuGrid) {
+
+      const card = document.createElement("div");
+
+      card.className = "menu-card menu-dinamis";
+
+      const gambar = document.createElement("img");
+
+      gambar.src = gambarTampil;
+      gambar.alt = item.nama;
+
+      const nama = document.createElement("h3");
+
+      nama.textContent = item.nama;
+
+      const penjual = document.createElement("span");
+
+      penjual.textContent =
+        "Penjual: " + namaPenjual +
+        (dataPenjualTersimpan[item.penjualId]
+          ? " (" + item.penjualId + ")"
+          : "");
+
+      penjual.style.cssText =
+        "font-size:10px;color:#71808a;display:block;text-align:center;";
+
+      const harga = document.createElement("p");
+
+      harga.textContent = formatRupiah(item.harga);
+
+      const tombol = document.createElement("button");
+
+      tombol.textContent = "+ Tambah";
+
+      tombol.onclick = () => {
+        window.tambahKeKeranjang(item.nama, item.harga);
+      };
+
+      card.appendChild(gambar);
+      card.appendChild(nama);
+      card.appendChild(penjual);
+      card.appendChild(harga);
+      card.appendChild(tombol);
+
+      menuGrid.appendChild(card);
+
+    }
+
+    // HALAMAN KELOLA MENU
+
+    if (daftarCrudMenu) {
+
+      const row = document.createElement("div");
+
+      row.className = "crud-list-item";
+
+      const info = document.createElement("div");
+
+      info.className = "crud-item-info";
+
+      const gambar = document.createElement("img");
+
+      gambar.src = gambarTampil;
+      gambar.alt = item.nama;
+
+      const teks = document.createElement("div");
+
+      teks.className = "crud-item-text";
+
+      const nama = document.createElement("strong");
+
+      nama.textContent = item.nama;
+
+      const penjual = document.createElement("span");
+
+      penjual.textContent =
+        namaPenjual + " (" + (item.penjualId || "Umum") + ")";
+
+      penjual.style.cssText =
+        "font-size:11px;color:#71808a;";
+
+      const harga = document.createElement("span");
+
+      harga.textContent = formatRupiah(item.harga);
+
+      harga.style.cssText =
+        "color:#079669;font-weight:bold;";
+
+      teks.appendChild(nama);
+      teks.appendChild(penjual);
+      teks.appendChild(harga);
+
+      info.appendChild(gambar);
+      info.appendChild(teks);
+
+      const actions = document.createElement("div");
+
+      actions.className = "crud-item-actions";
+
+      const edit = document.createElement("button");
+
+      edit.textContent = "Edit";
+
+      edit.style.background = "#2185e8";
+
+      edit.onclick = () => window.isiFormEditCRUD(id);
+
+      const hapus = document.createElement("button");
+
+      hapus.textContent = "Hapus";
+
+      hapus.style.background = "#e94359";
+
+      hapus.onclick = () => window.hapusMenuCRUD(id);
+
+      actions.appendChild(edit);
+      actions.appendChild(hapus);
+
+      row.appendChild(info);
+      row.appendChild(actions);
+
+      daftarCrudMenu.appendChild(row);
+
+    }
+
   });
+
+  if (
+    daftarCrudMenu &&
+    Object.keys(dataMenuTersimpan).length === 0
+  ) {
+
+    daftarCrudMenu.innerHTML =
+      "<p style='color:#888;font-size:12px;'>Belum ada menu tambahan.</p>";
+
+  }
+
+}
+
+// ==========================================
+// 21. AMBIL MENU KHUSUS KAKA
+// ==========================================
+
+onSnapshot(menuRef, (snapshot) => {
+
+  dataMenuTersimpan = {};
+
+  snapshot.forEach((docSnap) => {
+
+    dataMenuTersimpan[docSnap.id] =
+      docSnap.data();
+
+  });
+
+  renderMenu();
+
+}, (error) => {
+
+  console.error("Gagal mengambil menu:", error);
+
 });
 
 // ==========================================
-// 24. HAPUS MENU
+// 22. SIMPAN / EDIT MENU KAKA
 // ==========================================
 
-document.getElementById("daftar-crud-menu")?.addEventListener("click", async event => {
-  const tombol = event.target.closest("[data-hapus-menu]");
-  if (!tombol) return;
+if (formCrudMenu) {
 
-  const id = tombol.dataset.hapusMenu;
+  formCrudMenu.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const id =
+      document.getElementById("crud-menu-id").value;
+
+    const penjualId =
+      document.getElementById("crud-penjual-id").value;
+
+    const nama =
+      document.getElementById("crud-nama").value.trim();
+
+    const harga =
+      Number(document.getElementById("crud-harga").value);
+
+    const gambarLama =
+      document.getElementById("crud-gambar-lama").value;
+
+    const file =
+      fileInput.files[0];
+
+    if (!penjualId || !nama || harga <= 0) {
+
+      alert("Lengkapi semua data menu!");
+
+      return;
+
+    }
+
+    if (!dataPenjualTersimpan[penjualId]) {
+
+      alert("Identitas penjual tidak ditemukan!");
+
+      return;
+
+    }
+
+    if (!id && !file) {
+
+      alert("Silakan pilih file gambar terlebih dahulu!");
+
+      return;
+
+    }
+
+    try {
+
+      const gambarFinal = file
+        ? await ubahFileKeBase64(file)
+        : gambarLama;
+
+      const dataMenu = {
+
+        penjualId,
+        nama,
+        harga,
+        gambar: gambarFinal,
+
+        kasirId: kasirId
+
+      };
+
+      if (id) {
+
+        await updateDoc(
+          doc(menuRef, id),
+          dataMenu
+        );
+
+        alert("Menu Kaka berhasil diperbarui!");
+
+      } else {
+
+        await addDoc(menuRef, dataMenu);
+
+        alert("Menu Kaka berhasil ditambahkan!");
+
+      }
+
+      resetFormCRUD();
+
+    } catch (err) {
+
+      console.error("Gagal menyimpan menu:", err);
+
+      alert("Terjadi kesalahan saat menyimpan menu.");
+
+    }
+
+  });
+
+}
+
+// ==========================================
+// 23. EDIT MENU KAKA
+// ==========================================
+
+window.isiFormEditCRUD = function(id) {
+
+  const item = dataMenuTersimpan[id];
+
+  if (!item) return;
+
+  document.getElementById("crud-menu-id").value = id;
+
+  document.getElementById("crud-penjual-id").value =
+    item.penjualId || "";
+
+  document.getElementById("crud-nama").value =
+    item.nama || "";
+
+  document.getElementById("crud-harga").value =
+    item.harga || "";
+
+  document.getElementById("crud-gambar-lama").value =
+    item.gambar || "";
+
+  if (item.gambar && previewImg) {
+
+    previewImg.src = item.gambar;
+
+    previewContainer.classList.remove("hidden");
+
+  } else if (previewImg) {
+
+    previewImg.src = "";
+
+    previewContainer.classList.add("hidden");
+
+  }
+
+  if (fileInput) fileInput.value = "";
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+};
+
+// ==========================================
+// 24. HAPUS MENU KAKA
+// ==========================================
+
+window.hapusMenuCRUD = async function(id) {
 
   if (!confirm("Yakin ingin menghapus menu ini?")) return;
 
   try {
-    await deleteDoc(doc(db, "menu", id));
-    tampilkanPesan("Menu berhasil dihapus.");
 
-    if (document.getElementById("crud-menu-id")?.value === id) {
-      bersihkanFormMenu();
-    }
+    await deleteDoc(doc(menuRef, id));
 
-  } catch (error) {
-    console.error(error);
-    tampilkanPesan("Gagal menghapus menu.");
+    alert("Menu Kaka berhasil dihapus!");
+
+  } catch (err) {
+
+    console.error("Gagal menghapus menu:", err);
+
+    alert("Terjadi kesalahan saat menghapus menu.");
+
   }
-});
 
-// ==========================================
-// 25. BERSIHKAN FORM MENU
-// ==========================================
+};
 
-function bersihkanFormMenu() {
-  formMenu?.reset();
-
-  const id = document.getElementById("crud-menu-id");
-  const gambarLama = document.getElementById("crud-gambar-lama");
-  const container = document.getElementById("preview-container");
-  const preview = document.getElementById("crud-preview");
-  const tombolSimpan = document.getElementById("btn-simpan-crud");
-
-  if (id) id.value = "";
-  if (gambarLama) gambarLama.value = "";
-  if (container) container.classList.add("hidden");
-  if (preview) preview.removeAttribute("src");
-  if (tombolSimpan) tombolSimpan.textContent = "Simpan Menu";
-
-  fileGambarTerpilih = null;
-}
-
-document.getElementById("btn-batal-edit")?.addEventListener("click", bersihkanFormMenu);
-
-// ==========================================
-// 26. KONDISI AWAL
-// ==========================================
-
-tampilkanKeranjang();
-
-console.log("Kasir Cemerlang berhasil dijalankan.");
+console.log("Kasir Cemerlang siap!");
+console.log("ID Kasir:", kasirId);
+console.log("Nama Kasir:", namaKasir);
+console.log("Database menu: menu_KASIR001");
+console.log("Database penjual: penjual_KASIR001");
