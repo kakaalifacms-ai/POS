@@ -27,12 +27,12 @@ import QRCode from "https://esm.sh/qrcode@1.5.3";
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA6I1Tvw61wzc6-2MVmcWXfZ17IwDYj7u4",
-  authDomain: "rpl25-b6db4.firebaseapp.com",
-  projectId: "rpl25-b6db4",
-  storageBucket: "rpl25-b6db4.firebasestorage.app",
-  messagingSenderId: "643920833293",
-  appId: "1:643920833293:web:f5ac7fdc746e4e410d5e44"
+  apiKey: "AIzaSyC_1XwbW-9zcNkRJXIQr4N1GgAyzQr6O2g",
+  authDomain: "uasgenap2026-549f7.firebaseapp.com",
+  projectId: "uasgenap2026-549f7",
+  storageBucket: "uasgenap2026-549f7.firebasestorage.app",
+  messagingSenderId: "560108074909",
+  appId: "1:560108074909:web:50c7719780334c88bee174"
 };
 
 const app = initializeApp(firebaseConfig);
