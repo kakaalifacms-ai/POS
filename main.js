@@ -152,7 +152,7 @@ onSnapshot(
       hargaTeks.textContent = formatRupiah(harga);
 
       const tombol = document.createElement("button");
-      tombol.textContent = "Tambah";
+      tombol.textContent = "+ Tambah";
       tombol.type = "button";
 
       tombol.addEventListener("click", () => {
