@@ -1,4 +1,8 @@
 
+/* =====================================
+   1. RESET DAN DASAR
+===================================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -7,59 +11,105 @@
 
 body {
   font-family: Arial, sans-serif;
-  background: #fff7ed;
-  color: #333;
-  padding: 20px;
+  background: #f1f5f9;
+  color: #1e293b;
+  line-height: 1.5;
 }
 
 .container {
-  max-width: 950px;
+  width: 100%;
+  max-width: 1000px;
   margin: auto;
+  padding: 20px;
 }
 
-/* HEADER KASIR */
+.hidden {
+  display: none !important;
+}
+
+
+/* =====================================
+   2. HEADER KASIR DAN CRUD
+   TEMA TETAP ORANYE
+===================================== */
+
 .header,
 .topbar {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  color: white;
-  padding: 22px;
-  border-radius: 16px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 22px;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  padding: 22px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  border-top: 5px solid #f97316;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
 }
 
 .header h1,
 .topbar h1 {
   font-size: 25px;
-  margin-bottom: 7px;
+  color: #ea580c;
 }
 
 .header p,
 .topbar p {
+  color: #64748b;
   font-size: 14px;
-  opacity: 0.9;
 }
 
 .status-online {
-  background: #fff;
   color: #16a34a;
-  padding: 8px 13px;
-  border-radius: 20px;
-  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+/* =====================================
+   3. NAVIGASI KELOLA
+===================================== */
+
+.navigasi-kelola {
+  margin-bottom: 20px;
+}
+
+.navigasi-kelola a {
+  display: inline-block;
+  padding: 12px 18px;
+  background: #f97316;
+  color: white;
+  text-decoration: none;
+  border-radius: 9px;
   font-weight: bold;
 }
 
-/* SALDO */
+.navigasi-kelola a:hover {
+  background: #ea580c;
+}
+
+
+/* =====================================
+   4. CARD SALDO KASIR
+   ORANYE DENGAN EFEK CAHAYA
+===================================== */
+
 .saldo-box {
-  background: white;
-  padding: 22px;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px #0000000d;
+  background: linear-gradient(
+    135deg,
+    #ea580c,
+    #f97316,
+    #fb923c
+  );
+
+  color: white;
+  padding: 24px;
+  border-radius: 20px;
   margin-bottom: 25px;
-  border-left: 5px solid #f97316;
+
+  box-shadow:
+    0 8px 25px rgba(249,115,22,0.30),
+    0 0 35px rgba(251,146,60,0.25);
 }
 
 .saldo-header,
@@ -70,105 +120,123 @@ body {
   gap: 10px;
 }
 
-.saldo-header {
-  color: #666;
-}
-
-.saldo-box h2 {
-  color: #ea580c;
-  font-size: 30px;
-  margin: 14px 0;
-}
-
 .saldo-status {
-  color: #16a34a;
+  color: #ffedd5;
   font-size: 13px;
 }
 
+.saldo-box h2 {
+  font-size: 32px;
+  margin: 18px 0;
+  color: white;
+}
+
 .saldo-footer {
-  border-top: 1px solid #eee;
-  padding-top: 13px;
-  color: #666;
+  border-top: 1px solid rgba(255,255,255,0.35);
+  padding-top: 14px;
 }
 
-.saldo-footer strong {
-  color: #16a34a;
-}
 
-/* MENU KASIR */
+/* =====================================
+   5. MENU MAKANAN DAN MINUMAN
+===================================== */
+
 .judul-menu {
   margin: 25px 0 15px;
   font-size: 20px;
+  color: #ea580c;
 }
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(160px, 1fr)
+  );
   gap: 15px;
   margin-bottom: 25px;
 }
 
 .menu-card {
   background: white;
-  border-radius: 14px;
+  padding: 15px;
+  border-radius: 13px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  text-align: center;
   overflow: hidden;
-  box-shadow: 0 3px 12px #0000000d;
-  border: 1px solid #ffedd5;
 }
 
-.menu-card img {
-  width: 100%;
-  height: 135px;
-  object-fit: cover;
-  display: block;
-}
-
-.menu-info {
-  padding: 13px;
-}
-
-.menu-info h4 {
+.menu-card h3 {
   font-size: 16px;
-  margin-bottom: 7px;
+  margin: 10px 0 5px;
 }
 
-.harga-menu {
+/* HARGA RP WARNA ORANYE */
+
+.menu-card p {
   color: #f97316;
+  font-size: 17px;
   font-weight: bold;
-  margin-bottom: 7px;
-}
-
-.penjual-label {
-  font-size: 12px;
-  color: #777;
   margin-bottom: 12px;
 }
 
-.btn-tambah {
+.menu-image {
   width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 9px;
+  margin-bottom: 10px;
+}
+
+
+/* =====================================
+   6. TOMBOL TAMBAH
+   ABU-ABU SEPERTI FOTO
+===================================== */
+
+.menu-card button {
+  width: 100%;
+  background: #eeeeee;
+  color: #111827;
   border: none;
-  background: #f97316;
-  color: white;
-  padding: 10px;
+  padding: 11px 16px;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 14px;
   font-weight: bold;
+  transition: 0.2s;
+}
+
+.menu-card button:hover {
+  background: #dedede;
+}
+
+/* Jika tombol menggunakan class ini */
+
+.btn-tambah,
+.btn-add {
+  background: #eeeeee;
+  color: #111827;
 }
 
 .btn-tambah:hover,
-.btn-primary:hover,
-.btn-main:hover {
-  background: #c2410c;
+.btn-add:hover {
+  background: #dedede;
 }
 
-/* KERANJANG */
+
+/* =====================================
+   7. KERANJANG BELANJA
+===================================== */
+
 .keranjang-box,
-.summary-box {
+.summary-box,
+.panel {
   background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 18px;
-  box-shadow: 0 3px 12px #0000000d;
+  padding: 22px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
 }
 
 .keranjang-box h3,
@@ -176,76 +244,127 @@ body {
   margin-bottom: 15px;
 }
 
+.keranjang-kosong,
+.loading-text {
+  color: #94a3b8;
+  padding: 12px 0;
+}
+
 .item-keranjang {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  padding: 13px 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.item-keranjang strong {
-  color: #ea580c;
+.item-kanan {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
 }
 
-.keranjang-kosong {
-  color: #999;
-  text-align: center;
-  padding: 20px 5px;
+.item-kanan small {
+  color: #64748b;
+  font-size: 12px;
 }
+
+
+/* =====================================
+   8. TOTAL TAGIHAN
+===================================== */
 
 .total-teks {
-  color: #f97316;
-  font-size: 28px;
+  font-size: 29px;
   font-weight: bold;
-  margin: 10px 0 18px;
+  color: #f97316;
+  margin: 12px 0 20px;
 }
 
 .action-btns,
 .button-row {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 10px;
 }
 
-.btn-main,
-.btn-reset,
-.btn-primary,
-.btn-delete,
-.btn-edit {
+button {
   border: none;
-  border-radius: 8px;
   padding: 11px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
   font-size: 14px;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
-.btn-main,
-.btn-primary {
-  background: #f97316;
-  color: white;
-}
-
-.btn-main:disabled {
-  background: #ccc;
+button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.btn-reset {
-  background: #f3f4f6;
-  color: #555;
+
+/* =====================================
+   9. TOMBOL BUAT QR
+   WARNA BIRU
+===================================== */
+
+.btn-main {
+  background: #2563eb;
+  color: white;
 }
 
-/* PEMBAYARAN QR */
+.btn-main:hover {
+  background: #1d4ed8;
+}
+
+
+/* =====================================
+   10. TOMBOL SIMPAN MENU
+   ORANYE MUDA
+===================================== */
+
+.btn-primary {
+  background: #fb923c;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #f97316;
+}
+
+
+/* =====================================
+   11. TOMBOL RESET
+   WARNA MERAH
+===================================== */
+
+.btn-reset {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-reset:hover {
+  background: #dc2626;
+}
+
+.action-btns button {
+  flex: 1;
+}
+
+
+/* =====================================
+   12. QR PEMBAYARAN
+===================================== */
+
 .qr-section {
   background: white;
   text-align: center;
-  padding: 24px;
-  border-radius: 16px;
+  padding: 25px;
+  border-radius: 15px;
   margin-top: 20px;
-  box-shadow: 0 3px 12px #0000000d;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
 }
 
 .qr-section h3 {
@@ -253,214 +372,219 @@ body {
 }
 
 .id-label {
-  color: #777;
+  color: #64748b;
   font-size: 13px;
 }
 
-.qr-wrapper {
-  margin: 18px auto;
-  padding: 12px;
-  width: fit-content;
-  border: 1px solid #eee;
-  border-radius: 10px;
+#tx-id-display {
+  overflow-wrap: anywhere;
+  margin: 8px 0 15px;
 }
 
-.qr-wrapper canvas {
-  max-width: 100%;
-  height: auto;
+.qr-wrapper {
+  display: inline-block;
+  background: white;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin: 10px 0;
 }
 
 .status-box {
-  padding: 12px;
+  padding: 13px;
   border-radius: 9px;
   margin: 15px 0;
 }
 
 .status-pending {
-  background: #fff7ed;
-  color: #c2410c;
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .status-success {
   background: #dcfce7;
-  color: #15803d;
+  color: #166534;
 }
 
 .qr-info {
-  color: #777;
-  font-size: 12px;
+  color: #64748b;
+  font-size: 13px;
 }
+
+
+/* =====================================
+   13. NOTIFIKASI
+===================================== */
 
 .notifikasi {
   position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #16a34a;
-  color: white;
-  padding: 14px 20px;
-  border-radius: 10px;
-  width: max-content;
-  max-width: 90%;
-  box-shadow: 0 4px 15px #00000030;
-  z-index: 100;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* HALAMAN KELOLA */
-.panel {
+  top: 20px;
+  right: 20px;
+  width: min(350px, calc(100% - 40px));
   background: white;
   padding: 22px;
-  border-radius: 15px;
-  margin-bottom: 22px;
-  box-shadow: 0 3px 12px #0000000d;
+  border-radius: 13px;
+  text-align: center;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+  z-index: 1000;
+  border-top: 5px solid #22c55e;
 }
 
-.panel h2 {
-  color: #ea580c;
-  margin-bottom: 10px;
+.notifikasi h3 {
+  margin: 10px 0;
+  color: #15803d;
 }
+
+.notifikasi h2 {
+  color: #16a34a;
+  margin: 10px 0;
+}
+
+
+/* =====================================
+   14. FORM CRUD
+===================================== */
 
 .description {
-  color: #777;
-  font-size: 13px;
+  color: #64748b;
+  font-size: 14px;
   margin-bottom: 18px;
 }
 
+.panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .panel label {
-  display: block;
   font-weight: bold;
   font-size: 14px;
-  margin: 14px 0 7px;
+  margin-top: 5px;
 }
 
 .panel input,
 .panel select {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  outline: none;
-  background: white;
   font-size: 14px;
+  background: white;
+  outline: none;
 }
 
 .panel input:focus,
 .panel select:focus {
   border-color: #f97316;
+  box-shadow: 0 0 0 2px rgba(249,115,22,0.1);
 }
 
 .panel input[type="file"] {
-  padding: 9px;
+  padding: 10px;
 }
 
-.subheading {
-  margin: 23px 0 12px;
-}
 
-.loading-text {
-  color: #888;
-  padding: 15px 0;
-}
+/* =====================================
+   15. PREVIEW GAMBAR
+===================================== */
 
 .preview-box {
-  margin-top: 15px;
   padding: 12px;
-  background: #fff7ed;
+  background: #f8fafc;
   border-radius: 10px;
+  border: 1px solid #e2e8f0;
 }
 
 .preview-box p {
   margin-bottom: 10px;
   font-size: 13px;
+  color: #64748b;
 }
 
 .preview-box img {
-  width: 120px;
-  height: 100px;
-  object-fit: cover;
+  width: 100%;
+  max-width: 220px;
+  max-height: 180px;
+  object-fit: contain;
   border-radius: 8px;
 }
 
-.button-row {
-  margin-top: 16px;
-}
 
-.section-heading {
+/* =====================================
+   16. DATA CRUD
+   TEMA TETAP ORANYE
+===================================== */
+
+.panel h2 {
+  color: #ea580c;
   margin-bottom: 15px;
 }
 
-/* DAFTAR CRUD */
-.crud-row,
-.penjual-row {
+.subheading {
+  margin: 25px 0 12px;
+  color: #ea580c;
+}
+
+.data-card {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.crud-info {
-  display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 0;
+  background: #fffaf5;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #f97316;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
 }
 
-.crud-info img {
-  width: 75px;
-  height: 65px;
+.data-card p {
+  margin-top: 5px;
+  color: #475569;
+}
+
+.data-card small {
+  display: block;
+  margin: 7px 0;
+  color: #64748b;
+}
+
+.data-card .menu-image {
+  display: block;
+  width: 100px;
+  height: 80px;
   object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
+  margin-bottom: 10px;
 }
 
-.crud-info h4 {
-  font-size: 14px;
-  margin-bottom: 5px;
+.data-card button {
+  margin: 4px;
+  white-space: nowrap;
 }
 
-.crud-info p,
-.penjual-info p {
-  font-size: 12px;
-  color: #777;
-  margin-top: 4px;
-}
-
-.crud-actions {
+.section-heading {
   display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
-.btn-edit {
-  background: #fef3c7;
-  color: #92400e;
-}
 
-.btn-delete {
-  background: #dc2626;
-  color: white;
-}
+/* =====================================
+   17. RESPONSIVE HP
+===================================== */
 
-.button-row .btn-reset {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-/* RESPONSIVE */
 @media (max-width: 600px) {
-  body {
+
+  .container {
     padding: 12px;
   }
 
   .header,
   .topbar {
-    padding: 17px;
+    padding: 16px;
   }
 
   .header h1,
@@ -468,34 +592,65 @@ body {
     font-size: 21px;
   }
 
+  .saldo-box {
+    padding: 19px;
+  }
+
+  .saldo-box h2 {
+    font-size: 27px;
+  }
+
   .menu-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 
-  .menu-card img {
-    height: 115px;
-  }
-
-  .menu-info {
+  .menu-card {
     padding: 10px;
   }
 
-  .crud-row,
-  .penjual-row {
+  .menu-image {
+    height: 110px;
+  }
+
+  .keranjang-box,
+  .summary-box,
+  .panel {
+    padding: 16px;
+  }
+
+  .total-teks {
+    font-size: 25px;
+  }
+
+  .data-card {
     align-items: flex-start;
-    flex-direction: column;
   }
 
-  .crud-actions {
-    width: 100%;
+  .data-card button {
+    padding: 9px 11px;
   }
 
-  .crud-actions button {
-    flex: 1;
-  }
+}
 
-  .action-btns button {
-    flex: 1;
-  }
+/* TOMBOL TAMBAH MENU - HIJAU */
+.menu-card button {
+  width: 100%;
+  background: #16a34a !important;
+  color: white !important;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu-card button:hover {
+  background: #15803d !important;
+}
+
+.menu-card button:active {
+  transform: scale(0.97);
 }
